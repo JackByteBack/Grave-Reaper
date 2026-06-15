@@ -1,10 +1,10 @@
-// レベルアップ：スキルカード選択UI（高解像度オーバーレイに描画）
+// Level up: Skill card selection UI (drawn on high-res overlay)
 
 import { isNavLeft, isNavRight, isConfirm, isJustPressed } from '../engine/input.js';
 
-const JP_FONT = "'Yu Gothic', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif";
+const UI_FONT = "'Yu Gothic', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif";
 
-// カテゴリ（日本語）ごとの配色
+// Color scheme by category
 const CAT_STYLE = {
   'Weapon':  { accent: '#46f0a8' },
   'AoE':     { accent: '#ff6bd6' },
@@ -79,23 +79,23 @@ export class LevelUpUI {
     ctx.save();
     ctx.textAlign = 'center';
 
-    // 暗幕
+    // Dark overlay
     ctx.fillStyle = 'rgba(0,0,0,0.78)';
     ctx.fillRect(0, 0, W, H);
 
-    // 見出し
+    // Header
     ctx.fillStyle = '#ffdd44';
-    ctx.font = `bold 20px ${JP_FONT}`;
+    ctx.font = `bold 20px ${UI_FONT}`;
     ctx.shadowColor = '#aa6600';
     ctx.shadowBlur = 8;
     ctx.fillText('LEVEL UP!', W / 2, 34);
     ctx.shadowBlur = 0;
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = `12px ${JP_FONT}`;
+    ctx.font = `12px ${UI_FONT}`;
     ctx.fillText('Choose one upgrade', W / 2, 50);
 
-    // カード
+    // Cards
     const n = this.choices.length;
     const cardW = 132, cardH = 150, gap = 14;
     const totalW = n * cardW + (n - 1) * gap;
@@ -111,68 +111,68 @@ export class LevelUpUI {
       const catLabel = c.cat || '';
       const style = CAT_STYLE[catLabel] || { accent: '#cccccc' };
 
-      // カード背景
+      // Card background
       const g = ctx.createLinearGradient(cx, cardY, cx, cardY + cardH);
       if (sel) { g.addColorStop(0, '#2a1c05'); g.addColorStop(1, '#140d02'); }
       else     { g.addColorStop(0, '#12121f'); g.addColorStop(1, '#080810'); }
       ctx.fillStyle = g;
       ctx.fillRect(cx, cardY, cardW, cardH);
 
-      // 枠（選択中は光彩＋太線）
+      // Frame (glow + thick line when selected)
       if (sel) { ctx.shadowColor = style.accent; ctx.shadowBlur = 14; }
       ctx.strokeStyle = sel ? style.accent : '#3a4a5a';
       ctx.lineWidth = sel ? 3 : 1.5;
       ctx.strokeRect(cx + 1, cardY + 1, cardW - 2, cardH - 2);
       ctx.shadowBlur = 0;
 
-      // カテゴリバッジ
+      // Category badge
       ctx.fillStyle = style.accent;
-      ctx.font = `bold 10px ${JP_FONT}`;
+      ctx.font = `bold 10px ${UI_FONT}`;
       ctx.fillText(catLabel, cx + cardW / 2, cardY + 18);
 
-      // 番号
+      // Number
       ctx.fillStyle = sel ? '#ffdd44' : '#667788';
-      ctx.font = `bold 11px ${JP_FONT}`;
+      ctx.font = `bold 11px ${UI_FONT}`;
       ctx.textAlign = 'left';
       ctx.fillText(`${i + 1}`, cx + 8, cardY + 18);
       ctx.textAlign = 'center';
 
-      // アイコン（絵文字）
+      // Icon (Emoji)
       ctx.font = '40px serif';
-      ctx.fillText(c.iconEmoji || '？', cx + cardW / 2, cardY + 66);
+      ctx.fillText(c.iconEmoji || '?', cx + cardW / 2, cardY + 66);
 
-      // スキル名
+      // Skill name
       ctx.fillStyle = sel ? style.accent : '#ffffff';
-      ctx.font = `bold 15px ${JP_FONT}`;
+      ctx.font = `bold 15px ${UI_FONT}`;
       ctx.fillText(c.name, cx + cardW / 2, cardY + 92);
 
-      // 説明（折り返し）
+      // Description (with wrapping)
       ctx.fillStyle = '#cdd6e0';
-      ctx.font = `12px ${JP_FONT}`;
-      const lines = wrapJa(c.desc, cardW - 16, ctx);
+      ctx.font = `12px ${UI_FONT}`;
+      const lines = wrapTextChar(c.desc, cardW - 16, ctx);
       lines.forEach((ln, li) => {
         ctx.fillText(ln, cx + cardW / 2, cardY + 112 + li * 16);
       });
 
-      // 選択マーカー
+      // Selection marker
       if (sel) {
         ctx.fillStyle = '#ffdd44';
-        ctx.font = `bold 11px ${JP_FONT}`;
+        ctx.font = `bold 11px ${UI_FONT}`;
         ctx.fillText('▼ SELECTED ▼', cx + cardW / 2, cardY + cardH - 8);
       }
     }
 
-    // 操作ガイド
+    // Control guide
     ctx.fillStyle = '#8899aa';
-    ctx.font = `11px ${JP_FONT}`;
+    ctx.font = `11px ${UI_FONT}`;
     ctx.fillText('Tap a card  •  [ ← → ] Move   [ 1 / 2 / 3 ] Quick Select   [ Enter / Space ] Confirm', W / 2, H - 12);
 
     ctx.restore();
   }
 }
 
-// 日本語の折り返し（文字単位）
-function wrapJa(text, maxWidth, ctx) {
+// Character-by-character text wrapping (useful for tight spaces)
+function wrapTextChar(text, maxWidth, ctx) {
   const lines = [];
   let cur = '';
   for (const ch of text) {

@@ -14,7 +14,7 @@ export class GameOverScreen {
     this.blinkTimer = 0;
     this.blinkOn = true;
     this.showTimer = 0;
-    // 「ランキングを見る」ボタンの当たり判定（論理480×270座標）。main がクリック判定に使用。
+    // Hitbox for the "View Rankings" button (logical 480x270 coordinates). Used by main for click detection.
     this.rankingBtnRect = null;
   }
 
@@ -36,7 +36,7 @@ export class GameOverScreen {
     // Prevent accidental skip — require 1 second before input
     if (this.showTimer < 1.0) return null;
 
-    if (isJustPressed('KeyL')) return 'ranking';   // ランキングを見る（クリックでも可）
+    if (isJustPressed('KeyL')) return 'ranking';   // View rankings (can also click)
     if (isJustPressed('KeyR')) return 'retry';
     if (isConfirm()) return 'title';
 
@@ -46,58 +46,68 @@ export class GameOverScreen {
   draw(ctx) {
     const W = 480;
     const H = 270;
-    const JP = "'Yu Gothic', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif";
+    const UI_FONT = "'Yu Gothic', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif";
 
     ctx.save();
     ctx.textAlign = 'center';
 
-    // 暗幕
+    // Dark overlay
     ctx.fillStyle = 'rgba(0,0,0,0.85)';
     ctx.fillRect(0, 0, W, H);
 
-    // ゲームオーバー or 勝利
+    // Game Over or Victory
     const win = this.stats && this.stats.victory;
     ctx.fillStyle = win ? '#ffdd44' : '#ff2222';
-    ctx.font = `bold 34px ${JP}`;
+    ctx.font = `bold 32px ${UI_FONT}`;
     ctx.shadowColor = win ? '#ffaa00' : '#ff0000';
     ctx.shadowBlur = 20;
-    ctx.fillText(win ? '★ ALL STAGES CLEARED! ★' : 'GAME OVER', W / 2, 78);
+    ctx.fillText(win ? '★ ALL STAGES CLEARED! ★' : 'GAME OVER', W / 2, 62);
     ctx.shadowBlur = 0;
 
-    // リザルト
+    // Results
     if (this.stats) {
-      const statsY = 118;
-      ctx.font = `14px ${JP}`;
+      const statsY = 96;
+      ctx.font = `13px ${UI_FONT}`;
       ctx.fillStyle = '#e0e0e0';
       ctx.fillText(`Time Survived : ${formatTime(this.stats.time)}`, W / 2, statsY);
-      ctx.fillText(`Kills         : ${this.stats.kills}`,            W / 2, statsY + 22);
-      ctx.fillText(`Max Level     : ${this.stats.level}`,           W / 2, statsY + 44);
-      ctx.fillText(`Total Gems    : ${this.stats.gems}`,            W / 2, statsY + 66);
+      ctx.fillText(`Kills         : ${this.stats.kills}`,            W / 2, statsY + 20);
+      ctx.fillText(`Max Level     : ${this.stats.level}`,           W / 2, statsY + 40);
+      ctx.fillText(`Total Gems    : ${this.stats.gems}`,            W / 2, statsY + 60);
+
+      // Shadows banked into the Shadow Vault this run.
+      if (this.stats.shadowsEarned != null) {
+        ctx.fillStyle = '#c8a2ff';
+        ctx.font = `bold 13px ${UI_FONT}`;
+        ctx.fillText(
+          `👻 +${this.stats.shadowsEarned} Shadows   (Vault: ${this.stats.shadowsTotal})`,
+          W / 2, statsY + 84,
+        );
+      }
     }
 
-    // ── 「ランキングを見る」ボタン（レトロ調・クリック可能）──
-    const bw = 176, bh = 28;
-    const bx = W / 2 - bw / 2, by = 196;
+    // ── "View Rankings" button (retro style, clickable) ──
+    const bw = 176, bh = 26;
+    const bx = W / 2 - bw / 2, by = 202;
     this.rankingBtnRect = { x: bx, y: by, w: bw, h: bh };
-    // 枠付きボタン（暗い背景＋金枠で既存UIに馴染ませる）
+    // Framed button (dark background + gold frame to match existing UI)
     ctx.fillStyle = 'rgba(34,18,8,0.92)';
     ctx.fillRect(bx, by, bw, bh);
-    ctx.strokeStyle = this.blinkOn ? '#ffd24a' : '#aa7722';   // 軽く明滅して押せると分かるように
+    ctx.strokeStyle = this.blinkOn ? '#ffd24a' : '#aa7722';   // Subtle blink to show it's clickable
     ctx.lineWidth = 2;
     ctx.strokeRect(bx + 1, by + 1, bw - 2, bh - 2);
     ctx.fillStyle = '#ffe07a';
-    ctx.font = `bold 13px ${JP}`;
+    ctx.font = `bold 13px ${UI_FONT}`;
     ctx.fillText('🏆 View Rankings', W / 2, by + 19);
 
-    // ボタン下の補助ヒント
+    // Helper hint below button
     ctx.fillStyle = '#aa9988';
-    ctx.font = `9px ${JP}`;
+    ctx.font = `9px ${UI_FONT}`;
     ctx.fillText('Click or press [ L ]', W / 2, by + bh + 12);
 
-    // 操作（リトライ / タイトル）
+    // Controls (Retry / Title)
     if (this.blinkOn) {
       ctx.fillStyle = '#ffdd44';
-      ctx.font = `bold 12px ${JP}`;
+      ctx.font = `bold 12px ${UI_FONT}`;
       ctx.fillText('[ R ] Retry    [ Enter ] Title Screen', W / 2, 250);
     }
 

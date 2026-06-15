@@ -1,14 +1,14 @@
-# 一時デバッグ画像・Pythonキャッシュ（スプライト抽出作業の中間生成物）
+# Temporary debug images / Python cache (intermediate products of sprite extraction)
 tools/_*.png
 tools/__pycache__/
 *.pyc
 
-# 元素材（大容量・実行時には不要。スプライトは assets/sprites/、背景は assets/backgrounds/ に抽出済み）
+# Original assets (large files, not needed at runtime. Sprites extracted to assets/sprites/, backgrounds to assets/backgrounds/)
 /Stage*.png
 /download*.png
 /FinalBoss.png
 assets/source/
 
-# OS / エディタ
+# OS / Editor
 .DS_Store
 Thumbs.db

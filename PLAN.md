@@ -1,98 +1,98 @@
-# Grave Reaper — 開発計画
+# Grave Reaper — Development Plan
 
-ブラウザで動くレトロフューチャー横スクロールアクション。
-**コンセプト**：『魔界村』(横スクロール・ジャンプ・ゴシックホラー世界観) × 『Vampire Survivors』(自動攻撃・Gem収集・レベルアップでスキル選択)
+A retro-future side-scrolling action game that runs in the browser.
+**Concept**: "Ghosts 'n Goblins" (side-scrolling, jump, Gothic horror world) × "Vampire Survivors" (auto-attack, gem collection, skill selection upon leveling up).
 
 ---
 
-## 1. 技術スタック
+## 1. Tech Stack
 
-- **HTML5 Canvas + 素のJavaScript (ES Modules)**。ビルド不要。
-- `image-rendering: pixelated` でドット絵をシャープに拡大。
-- 内部解像度 **480×270 (16:9)** を整数倍スケールで画面にフィット → レトロ感とパフォーマンス両立。
-- 60fps 固定タイムステップのゲームループ。
-- **ローカルサーバ必須**：ES Modules と画像は `file://` だとCORSで弾かれるため、`python -m http.server` 等で起動（起動スクリプト同梱）。
+- **HTML5 Canvas + Vanilla JavaScript (ES Modules)**. No build required.
+- `image-rendering: pixelated` for sharp pixel art scaling.
+- Internal resolution **480×270 (16:9)** fitted to the screen via integer scaling → balances retro feel and performance.
+- 60fps fixed-timestep game loop.
+- **Local server required**: ES Modules and images are blocked by CORS on `file://`, so start with `python -m http.server` or similar (startup scripts included).
 
-## 2. アセット処理（最大の技術リスク）
+## 2. Asset Processing (Largest Technical Risk)
 
-添付の5枚は2048×1152の「ラベル付きショーケースシート」。見出し文字・パレット見本・装飾枠が混在 → そのままでは使えない。
+The attached 5 sheets are 2048×1152 "labeled showcase sheets." They contain headers, palette samples, and decorative frames → cannot be used directly.
 
-**方針**：Python(Pillow)で各スプライトを座標指定で個別PNGに切り出し → `assets/sprites/` に整理。切り出し後に拡大表示して目視確認し、座標を反復調整する。
+**Strategy**: Use Python (Pillow) to extract each sprite into individual PNGs based on coordinate specifications → organize into `assets/sprites/`. After extraction, upscale and visually verify, iteratively adjusting coordinates.
 
-- `tools/extract_sprites.py` … 座標テーブルに基づき自動クロップ
-- 抽出対象（優先順）：
-  1. プレイヤー：Dark Knight (idle / walk×3 / jump / attack)
-  2. 敵：Zombie, Skeleton, Bat, Ghost, Red Devil, Werewolf, Gargoyle, Dragon, Dracula + **Large Demon Boss**
-  3. 武器エフェクト：Sword swing, Spear, Axe, Fireball, Lightning, Dagger
-  4. アイテム：Gem(赤青緑), Potion, スキルアイコン(盾/風/剣)
-  5. タイル・背景：地面タイル, 墓石, 枯木, 満月, 城シルエット
-- 抽出が困難な細部 → 自作ドット絵 or 絵文字で補完。
+- `tools/extract_sprites.py` … Automated cropping based on coordinate tables.
+- Extraction Targets (Priority):
+  1. Player: Dark Knight (idle / walk×3 / jump / attack)
+  2. Enemies: Zombie, Skeleton, Bat, Ghost, Red Devil, Werewolf, Gargoyle, Dragon, Dracula + **Large Demon Boss**
+  3. Weapon Effects: Sword swing, Spear, Axe, Fireball, Lightning, Dagger
+  4. Items: Gem (red/blue/green), Potion, Skill icons (shield/wind/sword)
+  5. Tiles/Background: Ground tiles, Gravestones, Dead trees, Full moon, Castle silhouette
+- Difficult-to-extract details → Supplement with custom pixel art or emojis.
 
-## 3. ゲームメカニクス
+## 3. Game Mechanics
 
-### 操作
-- 移動：`←`/`A`(左), `→`/`D`(右)
-- ジャンプ：`Space`/`Enter`（重力・地面/プラットフォーム判定）
-- 攻撃：**自動**（Vampire Survivors式。武器がクールダウンごとに自動発射）
-- レベルアップ選択：`←`/`→`でカード移動, `Enter`/`Space`で決定（`1`/`2`/`3`キーでも直接選択）
+### Controls
+- Movement: `←`/`A` (Left), `→`/`D` (Right)
+- Jump: `Space`/`Enter` (Gravity, ground/platform detection)
+- Attack: **Automatic** (Vampire Survivors style. Weapons fire automatically based on cooldown)
+- Level-up selection: `←`/`→` to move cards, `Enter`/`Space` to confirm (`1`/`2`/`3` keys for direct selection)
 
-### コアループ
-1. 敵が左右からウェーブで出現しプレイヤーに接近
-2. 自動攻撃で撃破 → **Gem**(XP) をドロップ、低確率で**HPポーション**ドロップ
-3. Gem取得でXPバー上昇 → **レベルアップ**で時間停止しスキルカード3枚提示
-4. カード選択で強化 → 難易度上昇（出現数・敵速度・敵HP）
-5. 一定時間ごとに **ボス(Large Demon)** 出現
+### Core Loop
+1. Enemies appear in waves from left and right, approaching the player.
+2. Defeat them with auto-attacks → they drop **Gems** (XP), with a low chance of **HP Potions**.
+3. Collect Gems to fill the XP bar → **Level up**, freezing time to present 3 skill cards.
+4. Select a card to strengthen the player → Difficulty increases (spawn rate, enemy speed, enemy HP).
+5. At regular intervals, a **Boss (Large Demon)** appears.
 
-### 成長要素（スキルカードの例）
-- 新武器解放：Spear / Battle Axe / Fireball / Lightning / Throwing Dagger
-- 武器強化：ダメージ↑, 攻撃速度↑, 投射数↑, 範囲↑, 貫通
-- ステータス：最大HP↑, 移動速度↑, 防御(被ダメ減), HP自動回復, Gem取得範囲↑
+### Progression Elements (Skill Card Examples)
+- Unlock New Weapons: Spear / Battle Axe / Fireball / Lightning / Throwing Dagger
+- Weapon Upgrades: Damage↑, Attack Speed↑, Projectile Count↑, Range↑, Piercing
+- Status: Max HP↑, Move Speed↑, Defense (Damage Reduction), HP Regeneration, Gem Pickup Range↑
 
-### プレイヤー戦闘
-- 武器は所持リストを保持し各々独立クールダウンで自動発動
-- 向いている方向 or 最寄りの敵方向へ発射（武器ごとに挙動定義）
+### Player Combat
+- The player maintains a list of weapons, each firing automatically on its own cooldown.
+- Fires in the direction the player is facing or toward the nearest enemy (behavior defined per weapon).
 
-## 4. ステージ
-- 地面 + 浮遊プラットフォームの横スクロールステージ（ループ or 横長）
-- パララックス背景：満月 + 城シルエット + 墓地/枯木の手前レイヤー
-- カメラはプレイヤー追従（左右スクロール）
+## 4. Stage
+- Side-scrolling stage with ground + floating platforms (looping or horizontally long).
+- Parallax background: Full moon + Castle silhouette + Graveyard/Dead tree foreground layer.
+- Camera follows the player (horizontal scrolling).
 
 ## 5. UI / HUD
-- 上部：HPバー, レベル & XPバー, 生存タイマー, 撃破数, Gem数
-- レベルアップ画面：3枚のスキルカード（アイコン+名前+効果, キーボード選択ハイライト）
-- タイトル画面 / ゲームオーバー画面（リトライ）
+- Top: HP bar, Level & XP bar, Survival timer, Kill count, Gem count.
+- Level-up screen: 3 skill cards (Icon + Name + Effect, keyboard selection highlight).
+- Title screen / Game Over screen (Retry).
 
-## 6. ファイル構成
+## 6. File Structure
 ```
 Grave Reaper/
 ├─ index.html
-├─ serve.bat / serve.sh         # ローカルサーバ起動
+├─ serve.bat / serve.sh         # Local server startup
 ├─ css/style.css
-├─ tools/extract_sprites.py     # スプライト抽出
+├─ tools/extract_sprites.py     # Sprite extraction
 ├─ assets/
-│  ├─ source/  (元の5枚PNG)
-│  └─ sprites/ (抽出後の個別PNG)
+│  ├─ source/  (Original 5 PNGs)
+│  └─ sprites/ (Individual PNGs after extraction)
 └─ src/
-   ├─ main.js        # 起動・ゲームループ
+   ├─ main.js        # Entry point / Game loop
    ├─ engine/        # loop, input, camera, sprite, animation, audio
    ├─ entities/      # player, enemy, projectile, pickup, boss
    ├─ systems/       # spawner, combat, leveling, collision
    ├─ ui/            # hud, levelup-cards, title, gameover
-   └─ data/          # weapons, enemies, upgrades 定義
+   └─ data/          # weapons, enemies, upgrades definitions
 ```
 
-## 7. 実装マイルストーン
-1. **基盤**：プロジェクト構成・ローカルサーバ・空Canvas起動
-2. **アセット抽出**：extract_sprites.py で切り出し→目視確認→座標調整
-3. **エンジン**：ゲームループ, 入力, スプライト描画, アニメ, カメラ, 物理(重力/ジャンプ/接地)
-4. **プレイヤー**：移動・ジャンプ・アニメ
-5. **敵 & スポナー**：出現・追跡・接触ダメージ・撃破
-6. **自動攻撃 & 武器**：複数武器の自動発射と当たり判定
-7. **ドロップ & XP**：Gem/ポーション・取得・XP・レベルアップ判定
-8. **レベルアップUI**：3枚カード・キーボード選択・強化適用
-9. **HUD & ステージ背景**：パララックス・墓地タイル
-10. **ボス**：Large Demon 出現と攻撃パターン
-11. **タイトル/ゲームオーバー・調整**：バランス・SE(絵文字/簡易合成音)・仕上げ
+## 7. Implementation Milestones
+1. **Foundation**: Project structure, local server, empty Canvas startup.
+2. **Asset Extraction**: Extract with extract_sprites.py → Visual check → Coordinate adjustment.
+3. **Engine**: Game loop, input, sprite rendering, animation, camera, physics (gravity/jump/grounding).
+4. **Player**: Movement, jump, animation.
+5. **Enemies & Spawner**: Appearance, tracking, contact damage, defeat.
+6. **Auto-attack & Weapons**: Multiple weapon firing and hit detection.
+7. **Drops & XP**: Gem/Potion collection, XP, level-up detection.
+8. **Level-up UI**: 3 cards, keyboard selection, applying upgrades.
+9. **HUD & Stage Background**: Parallax, graveyard tiles.
+10. **Boss**: Large Demon appearance and attack patterns.
+11. **Title/Game Over & Polish**: Balance, SE (emojis/simple synthesized sound), finishing touches.
 
-## 8. 補完方針
-不足アセットは①既存スプライトの改変 ②簡易ドット絵生成 ③絵文字 の順で補完。効果音はWeb Audio APIで簡易合成 or 省略。
+## 8. Supplementing Policy
+Missing assets will be supplemented in this order: 1. Modification of existing sprites, 2. Simple pixel art generation, 3. Emojis. Sound effects use Web Audio API synthesis or are omitted.

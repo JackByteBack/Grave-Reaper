@@ -1,9 +1,9 @@
-// 最終ボス「Magic Caster（魔導師）」。ステージ5専用のラスボス。
-// ラージデーモンより格上：
-//   ・防御オーラが強力（最大0.88・画面全体）＝雑魚をより硬くする
-//   ・ファイアブレスが広範囲・高火力・高頻度
-//   ・闇のオーブ連射（ラージデーモンには無い遠隔攻撃）
-// 移動/重力/フェーズ2/ファイアブレスの基礎は Boss を継承して再利用する。
+// Final boss "Magic Caster (Demon Lord)". Stage 5 exclusive final boss.
+// Stronger than Large Demon:
+//   · Powerful defense aura (max 0.88, full screen) = minions tougher
+//   · Firebreath wider range, high damage, high frequency
+//   · Dark orb rapid fire (ranged attack not used by Large Demon)
+// Movement/gravity/phase 2/firebreath basics inherited from Boss class.
 
 import { Boss } from './boss.js';
 import { drawSprite, drawSpriteTinted, getSprite } from '../engine/sprites.js';
@@ -17,7 +17,7 @@ export class FinalBoss extends Boss {
     this.id = 'finalboss';
     this.isFinal = true;
 
-    // 体格を大きく（当たり判定）
+    // Larger body (hitbox)
     this.width = 84;
     this.height = 96;
     this.y = GROUND_Y - this.height;

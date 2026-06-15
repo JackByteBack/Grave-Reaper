@@ -1,10 +1,10 @@
-// タイトル画面：キャラクター選択 → 難易度選択 → ゲーム開始
+// Title screen: Character select → Difficulty select → Game start
 
 import { isConfirm, isNavLeft, isNavRight, isJustPressed } from '../engine/input.js';
 import { drawSprite } from '../engine/sprites.js';
 import { DIFFICULTIES } from '../data/difficulty.js';
 
-const JP_FONT = "'Yu Gothic', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif";
+const UI_FONT = "'Yu Gothic', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif";
 
 const CHARACTERS = [
   {
@@ -32,6 +32,9 @@ export class TitleScreen {
     this.selectedDiff = 0;
     this.phase = 'title';    // 'title' | 'char' | 'difficulty'
     this.charBobTimer = 0;
+    // Hit-rect for the "Shadow Vault" button (logical 480×270). Only set while
+    // the 'title' phase is drawn; main.js uses it for click/tap routing.
+    this.vaultBtnRect = null;
   }
 
   update(dt) {
@@ -41,6 +44,7 @@ export class TitleScreen {
     this.charBobTimer += dt * 2.5;
 
     if (this.phase === 'title') {
+      if (isJustPressed('KeyV')) return { action: 'vault' };
       if (isConfirm()) { this.phase = 'char'; return null; }
     } else if (this.phase === 'char') {
       if (isNavLeft())  this.selectedChar = 0;
@@ -71,6 +75,7 @@ export class TitleScreen {
     const W = 480, H = 270;
     ctx.save();
     ctx.imageSmoothingEnabled = false;
+    this.vaultBtnRect = null;   // only the title phase exposes the vault button
     if (this.phase === 'title')           this._drawTitle(ctx, W, H);
     else if (this.phase === 'char')       this._drawCharSelect(ctx, W, H);
     else                                  this._drawDiffSelect(ctx, W, H);
@@ -86,42 +91,58 @@ export class TitleScreen {
 
     ctx.textAlign = 'center';
     ctx.fillStyle = '#ffffff';
-    ctx.font = `bold 30px ${JP_FONT}`;
+    ctx.font = `bold 30px ${UI_FONT}`;
     ctx.shadowColor = '#ff4422';
     ctx.shadowBlur = 16;
     ctx.fillText('☠ GRAVE REAPER ☠', W / 2, 96);
     ctx.shadowBlur = 0;
 
     ctx.fillStyle = '#cc8844';
-    ctx.font = `9px ${JP_FONT}`;
+    ctx.font = `9px ${UI_FONT}`;
     ctx.fillText('GOTHIC SURVIVAL ACTION', W / 2, 116);
 
     if (this.blinkOn) {
       ctx.fillStyle = '#ffdd44';
-      ctx.font = `bold 12px ${JP_FONT}`;
+      ctx.font = `bold 12px ${UI_FONT}`;
       ctx.fillText('PRESS ENTER / SPACE', W / 2, 150);
     }
 
+    // ── Shadow Vault entry button (permanent meta-upgrade shop) ──
+    const vbW = 188, vbH = 22, vbX = W / 2 - vbW / 2, vbY = 176;
+    this.vaultBtnRect = { x: vbX, y: vbY, w: vbW, h: vbH };
+    ctx.fillStyle = 'rgba(30,12,46,0.92)';
+    ctx.fillRect(vbX, vbY, vbW, vbH);
+    ctx.strokeStyle = '#9b59d0';
+    ctx.lineWidth = 2;
+    ctx.shadowColor = '#7722cc';
+    ctx.shadowBlur = 8;
+    ctx.strokeRect(vbX + 1, vbY + 1, vbW - 2, vbH - 2);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#d9b3ff';
+    ctx.font = `bold 11px ${UI_FONT}`;
+    ctx.textAlign = 'center';
+    ctx.fillText('⚰ SHADOW VAULT  [V]', W / 2, vbY + 15);
+
     ctx.fillStyle = '#8899aa';
-    ctx.font = `9px ${JP_FONT}`;
+    ctx.font = `9px ${UI_FONT}`;
     ctx.fillText('Move: A/D / ← →   Jump: Space/Enter   Attack: Auto', W / 2, 200);
     ctx.fillStyle = '#667788';
     ctx.fillText('Collect gems to level up. Survive 7 min to face the Large Demon!', W / 2, 214);
     ctx.fillStyle = '#7a6a88';
     ctx.fillText('Press F / the ⛶ button (top-right) for fullscreen', W / 2, 227);
 
-    // ビルド確認用バージョン（キャッシュ判別用）
+    // Version for build confirmation (cache identification)
     ctx.fillStyle = '#55cc77';
-    ctx.font = `bold 9px ${JP_FONT}`;
+    ctx.font = `bold 9px ${UI_FONT}`;
     ctx.textAlign = 'right';
-    ctx.fillText('build v22', W - 6, H - 6);
+    ctx.fillText('build v2.2', W - 6, H - 6);
   }
 
   _drawCharSelect(ctx, W, H) {
     ctx.fillStyle = 'rgba(0,0,0,0.7)';
     ctx.fillRect(0, 0, W, 30);
     ctx.fillStyle = '#ffdd44';
-    ctx.font = `bold 13px ${JP_FONT}`;
+    ctx.font = `bold 13px ${UI_FONT}`;
     ctx.textAlign = 'center';
     ctx.fillText('SELECT CHARACTER', W / 2, 20);
 
@@ -143,7 +164,7 @@ export class TitleScreen {
       ctx.shadowBlur = 0;
 
       ctx.fillStyle = sel ? '#ffdd44' : '#556677';
-      ctx.font = `bold 11px ${JP_FONT}`;
+      ctx.font = `bold 11px ${UI_FONT}`;
       ctx.textAlign = 'left';
       ctx.fillText(`${i + 1}`, cx + 8, cardY + 16);
 
@@ -153,18 +174,23 @@ export class TitleScreen {
 
       ctx.textAlign = 'center';
       ctx.fillStyle = sel ? ch.accentColor : '#ccced8';
-      ctx.font = `bold 14px ${JP_FONT}`;
+      ctx.font = `bold 14px ${UI_FONT}`;
       ctx.fillText(ch.name, cx + cardW / 2, cardY + 108);
 
-      ctx.font = `11px ${JP_FONT}`;
-      ch.desc.forEach((ln, li) => {
-        ctx.fillStyle = sel ? '#dddddd' : '#778899';
-        ctx.fillText(ln, cx + cardW / 2, cardY + 124 + li * 13);
+      ctx.font = `11px ${UI_FONT}`;
+      ctx.fillStyle = sel ? '#dddddd' : '#778899';
+      const cMaxW = cardW - 16;
+      let cy = cardY + 124;
+      ch.desc.forEach((entry) => {
+        for (const ln of wrapText(ctx, entry, cMaxW)) {
+          ctx.fillText(ln, cx + cardW / 2, cy);
+          cy += 13;
+        }
       });
     }
 
     ctx.fillStyle = '#8899aa';
-    ctx.font = `10px ${JP_FONT}`;
+    ctx.font = `10px ${UI_FONT}`;
     ctx.textAlign = 'center';
     ctx.fillText('[ ← → / 1·2 ] Select   [ Enter ] Confirm   [ Esc ] Back', W / 2, H - 10);
   }
@@ -173,7 +199,7 @@ export class TitleScreen {
     ctx.fillStyle = 'rgba(0,0,0,0.72)';
     ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = '#ffdd44';
-    ctx.font = `bold 15px ${JP_FONT}`;
+    ctx.font = `bold 15px ${UI_FONT}`;
     ctx.textAlign = 'center';
     ctx.fillText('SELECT DIFFICULTY', W / 2, 30);
 
@@ -196,31 +222,68 @@ export class TitleScreen {
       ctx.shadowBlur = 0;
 
       ctx.fillStyle = sel ? '#ffdd44' : '#556677';
-      ctx.font = `bold 10px ${JP_FONT}`;
+      ctx.font = `bold 10px ${UI_FONT}`;
       ctx.textAlign = 'left';
       ctx.fillText(`${i + 1}`, cx + 7, cardY + 15);
 
       ctx.textAlign = 'center';
       ctx.fillStyle = d.color;
-      ctx.font = `bold 16px ${JP_FONT}`;
+      ctx.font = `bold 16px ${UI_FONT}`;
       ctx.fillText(d.name, cx + cardW / 2, cardY + 40);
 
-      ctx.font = `10px ${JP_FONT}`;
-      d.desc.forEach((ln, li) => {
-        ctx.fillStyle = sel ? '#dddddd' : '#8090a0';
-        ctx.fillText(ln, cx + cardW / 2, cardY + 64 + li * 16);
+      // Descriptions: word-wrap each line so text stays inside the card.
+      ctx.font = `9px ${UI_FONT}`;
+      ctx.fillStyle = sel ? '#dddddd' : '#8090a0';
+      const dMaxW = cardW - 12;
+      let dy = cardY + 60;
+      d.desc.forEach((entry) => {
+        for (const ln of wrapText(ctx, entry, dMaxW)) {
+          ctx.fillText(ln, cx + cardW / 2, dy);
+          dy += 11;
+        }
+        dy += 2;   // small gap between entries
       });
 
       if (sel) {
         ctx.fillStyle = '#ffdd44';
-        ctx.font = `bold 10px ${JP_FONT}`;
+        ctx.font = `bold 10px ${UI_FONT}`;
         ctx.fillText('▼ SELECTED ▼', cx + cardW / 2, cardY + cardH - 10);
       }
     }
 
     ctx.fillStyle = '#8899aa';
-    ctx.font = `10px ${JP_FONT}`;
+    ctx.font = `10px ${UI_FONT}`;
     ctx.textAlign = 'center';
     ctx.fillText('[ ← → / 1-4 ] Select   [ Enter ] Start Game   [ Esc ] Back', W / 2, H - 12);
   }
+}
+
+// Wrap `text` to fit `maxWidth` (current ctx.font must already be set).
+// Breaks on spaces; falls back to character splitting for any single word
+// that is itself wider than the line.
+function wrapText(ctx, text, maxWidth) {
+  const lines = [];
+  for (const word of String(text).split(/\s+/)) {
+    if (!word) continue;
+    if (lines.length === 0) { lines.push(word); continue; }
+    const test = lines[lines.length - 1] + ' ' + word;
+    if (ctx.measureText(test).width <= maxWidth) {
+      lines[lines.length - 1] = test;
+    } else if (ctx.measureText(word).width <= maxWidth) {
+      lines.push(word);
+    } else {
+      // Word longer than the line: hard-split it character by character.
+      let cur = '';
+      for (const ch of word) {
+        if (ctx.measureText(cur + ch).width > maxWidth && cur) {
+          lines.push(cur);
+          cur = ch;
+        } else {
+          cur += ch;
+        }
+      }
+      if (cur) lines.push(cur);
+    }
+  }
+  return lines;
 }

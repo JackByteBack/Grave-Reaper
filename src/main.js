@@ -19,7 +19,11 @@ import { getStage, NUM_STAGES, stageForTime, BOSS_SPAWN_TIME } from './data/stag
 import { TitleScreen } from './ui/title.js';
 import { LevelUpUI } from './ui/levelup.js';
 import { GameOverScreen } from './ui/gameover.js';
+import { VaultScreen } from './ui/vault.js';
 import { drawHUD } from './ui/hud.js';
+
+import { computeRunReward } from './data/vault.js';
+import { addShadows, getLevel, applyVaultBonuses } from './systems/vault.js';
 
 // ─── Constants ─────────────────────────────────────────────────────────────
 const CANVAS_W = 480;
@@ -67,6 +71,7 @@ const BASE_DECOS = [
 const STATE = {
   LOADING: 'LOADING',
   TITLE:   'TITLE',
+  VAULT:   'VAULT',
   PLAYING: 'PLAYING',
   LEVELUP: 'LEVELUP',
   GAMEOVER:'GAMEOVER',
@@ -84,10 +89,10 @@ const uiCanvas = document.getElementById('ui-canvas');
 const uiCtx = uiCanvas.getContext('2d');
 let uiScale = 3;
 
-// キャンバスのスケーリング。
-// ・通常ウィンドウ時：ピクセルパーフェクトな整数倍（最大8×）。
-// ・全画面時：アスペクト比(16:9)を保ったままモニターいっぱいにフィット（非整数倍も許可）。
-//   → 480×270 は厳密に 16:9 なので 16:9 モニターでは黒帯なしで全面に拡大される。
+// Canvas scaling.
+// - Normal window: Pixel-perfect integer scaling (up to 8x).
+// - Fullscreen: Fits the monitor while maintaining aspect ratio (16:9), allowing non-integer scaling.
+//   -> Since 480x270 is exactly 16:9, it expands to fill 16:9 monitors without black bars.
 function resizeCanvas() {
   const W = CANVAS_W, H = CANVAS_H;
   const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
@@ -123,8 +128,8 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// ─── 全画面表示 ──────────────────────────────────────────────────────────────
-// ページ全体を全画面化（body は黒背景・中央寄せなのでキャンバスは中央に残る）。
+// --- Fullscreen Display -----------------------------------------------------
+// Makes the entire page fullscreen (body has black background and center alignment, so canvas remains centered).
 function toggleFullscreen() {
   const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
   if (!fsEl) {
@@ -160,6 +165,15 @@ canvas.addEventListener('click', (e) => {
   if (state === STATE.LEVELUP) {
     // Select an ability card by tapping it (selection callback resumes play).
     levelUpUI.handleTap(lx, ly);
+  } else if (state === STATE.TITLE && titleScreen && titleScreen.vaultBtnRect) {
+    // Tap the "Shadow Vault" button to open the meta-upgrade shop.
+    const b = titleScreen.vaultBtnRect;
+    if (lx >= b.x && lx <= b.x + b.w && ly >= b.y && ly <= b.y + b.h) {
+      vaultScreen.reset();
+      state = STATE.VAULT;
+    }
+  } else if (state === STATE.VAULT) {
+    if (vaultScreen.handleTap(lx, ly) === 'back') state = STATE.TITLE;
   } else if (state === STATE.GAMEOVER && gameOverScreen && gameOverScreen.rankingBtnRect) {
     const b = gameOverScreen.rankingBtnRect;
     if (lx >= b.x && lx <= b.x + b.w && ly >= b.y && ly <= b.y + b.h) {
@@ -184,6 +198,7 @@ initBGM('Piedad_BGM.mp3');
 const TOUCH_MODE_FOR = {
   [STATE.LOADING]:  'hidden',
   [STATE.TITLE]:    'menu',
+  [STATE.VAULT]:    'hidden',   // vault is tapped directly (rows + Back button)
   [STATE.PLAYING]:  'play',
   [STATE.LEVELUP]:  'hidden',
   [STATE.GAMEOVER]: 'menu',
@@ -202,6 +217,7 @@ let leveling;
 let titleScreen;
 let levelUpUI;
 let gameOverScreen;
+let vaultScreen;
 
 let gameStats = {
   elapsedTime: 0,
@@ -306,6 +322,7 @@ function getPlatforms() {
 // ─── Game init ─────────────────────────────────────────────────────────────
 function initGame(charId = 'knight', difficultyId = 'beginner') {
   player = new Player(CANVAS_W / 2, GROUND_Y - 36, charId);
+  applyVaultBonuses(player);   // permanent meta-upgrades from the Shadow Vault
   enemies = [];
   bosses = [];
   pickups = { gems: [], potions: [] };
@@ -323,13 +340,13 @@ function initGame(charId = 'knight', difficultyId = 'beginner') {
   updateCamera(player.getCenterX(), player.getCenterY());
 }
 
-// ステージ突入（背景＋突入バナー＋BGM切替）
+// Stage entry (background + entry banner + BGM change)
 function setStage(num) {
   currentStage = num;
   const st = getStage(num);
   if (st.final) {
-    // 最終ステージ：ラスボスBGMへ切替。突入と同時にラスボスが降臨するため、
-    // 「ラージデーモン接近」予告は出さない。
+    // Final stage: Switch to final boss BGM. Since the final boss arrives immediately,
+    // don't show "Large Demon approaching" warning.
     setBGMTrack('FinalBoss.mp3', 0.5);
     bossWarned = true;
     stageBanner = { text: `⚠ FINAL BATTLE — The Magic Caster ⚠`, timer: 3.5 };
@@ -339,13 +356,13 @@ function setStage(num) {
   }
 }
 
-// ─── Base44（親iframe）連携：ゲームオーバー時にスコアを postMessage で送信 ─────
-// Base44 アプリ内で iframe 読み込みされている場合のみ、親ウィンドウへ結果を送る。
-// 既存のゲームロジックには干渉せず、終了処理の直後に呼び出すだけ。
-// v16 にはスコア概念が無いため戦績から合成（撃破×100＋ジェム×10＋秒×5＋Lv×500＋勝利50000）。
+// ─── Base44 (parent iframe) integration: Send score to parent via postMessage on game over ─────
+// Only send results to parent window if loaded as iframe inside Base44 app.
+// Doesn't interfere with existing game logic, only called after cleanup.
+// No score concept in v16, so it's derived from stats (kills×100 + gems×10 + seconds×5 + level×500 + victory×50000).
 function postGameOverToParent(isVictory) {
   try {
-    // iframe 内でない（親＝自分）なら送らない
+    // Don't send if not inside an iframe (parent === self)
     if (!window.parent || window.parent === window) return;
     const score = Math.floor(
       gameStats.killCount * 100 +
@@ -356,7 +373,7 @@ function postGameOverToParent(isVictory) {
     );
     window.parent.postMessage({
       type: 'GRAVE_REAPER_GAME_OVER',
-      // React側(useGameOverListener)が参照する Score エンティティ用データ
+      // Score entity data for React-side (useGameOverListener)
       score: {
         score,
         kills: gameStats.killCount,
@@ -373,7 +390,7 @@ function postGameOverToParent(isVictory) {
   }
 }
 
-// ランキング画面への遷移を親(Base44/React)に依頼する。遷移は親側でハンドル。
+// Request transition to ranking screen from parent (Base44/React). Parent handles the transition.
 function goToRankingParent() {
   try {
     if (!window.parent || window.parent === window) return;
@@ -383,19 +400,11 @@ function goToRankingParent() {
   }
 }
 
-// ボス撃破 → 次ステージへ（最終ステージなら全クリア）
+// Boss defeated → next stage (or full clear if final stage)
 function onBossDefeated() {
   if (currentStage >= NUM_STAGES) {
     victory = true;
-    gameOverScreen.show({
-      time: gameStats.elapsedTime,
-      kills: gameStats.killCount,
-      level: player.level,
-      gems: gameStats.totalGems,
-      victory: true,
-    });
-    postGameOverToParent(true);   // 親(Base44)へ結果送信
-    state = STATE.GAMEOVER;
+    endGame(true);
     return;
   }
   // 次のステージへ
@@ -426,13 +435,21 @@ function showLevelUpScreen() {
 // ─── Update functions ──────────────────────────────────────────────────────
 function updateTitle(dt) {
   const result = titleScreen.update(dt);
-  if (result && result.action === 'start') {
+  if (!result) return;
+  if (result.action === 'vault') {
+    vaultScreen.reset();
+    state = STATE.VAULT;
+  } else if (result.action === 'start') {
     startBGM();   // Start BGM on first confirmed user interaction
     const charId = result.character ? result.character.id : 'knight';
     const diffId = result.difficulty ? result.difficulty.id : 'beginner';
     initGame(charId, diffId);
     state = STATE.PLAYING;
   }
+}
+
+function updateVault(dt) {
+  if (vaultScreen.update(dt) === 'back') state = STATE.TITLE;
 }
 
 function updatePlaying(dt) {
@@ -529,15 +546,25 @@ function updatePlaying(dt) {
 
   // Game over check
   if (player.dead) {
-    gameOverScreen.show({
-      time: gameStats.elapsedTime,
-      kills: gameStats.killCount,
-      level: player.level,
-      gems: gameStats.totalGems,
-    });
-    postGameOverToParent(false);   // 親(Base44)へ結果送信
-    state = STATE.GAMEOVER;
+    endGame(false);
   }
+}
+
+// End a run (death or full clear): bank Shadows into the Shadow Vault, show the
+// game-over screen, and notify the parent (Base44) iframe.
+function endGame(isVictory) {
+  const runStats = {
+    time: gameStats.elapsedTime,
+    kills: gameStats.killCount,
+    level: player.level,
+    gems: gameStats.totalGems,
+    victory: isVictory,
+  };
+  const earned = computeRunReward(runStats, getLevel('soul_tithe'));
+  const total = addShadows(earned);
+  gameOverScreen.show({ ...runStats, shadowsEarned: earned, shadowsTotal: total });
+  postGameOverToParent(isVictory);   // 親(Base44)へ結果送信
+  state = STATE.GAMEOVER;
 }
 
 function processDeadEnemies() {
@@ -588,6 +615,7 @@ function updateGameOver(dt) {
 function update(dt) {
   switch (state) {
     case STATE.TITLE:    updateTitle(dt);    break;
+    case STATE.VAULT:    updateVault(dt);    break;
     case STATE.PLAYING:  updatePlaying(dt);  break;
     case STATE.LEVELUP:  updateLevelUp(dt);  break;
     case STATE.GAMEOVER: updateGameOver(dt); break;
@@ -599,12 +627,12 @@ function update(dt) {
   clearFrame();
 }
 
-// ステージ突入バナー（中央に大きく表示し、フェードアウト）
+// Stage entry banner (large display in center, fade out)
 function drawStageBanner(uictx) {
   const W = 480, H = 270;
   const JP = "'Yu Gothic', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif";
   const t = stageBanner.timer;
-  const alpha = Math.min(1, t) * (t > 2.5 ? (3 - t) * 2 : 1); // 出入りフェード
+  const alpha = Math.min(1, t) * (t > 2.5 ? (3 - t) * 2 : 1); // Fade in/out
   uictx.save();
   uictx.globalAlpha = Math.max(0, alpha);
   uictx.textAlign = 'center';
@@ -630,6 +658,13 @@ function render() {
     // World background on pixel canvas, all text on crisp UI canvas.
     drawBackground(ctx, titleScreen.bgX);
     titleScreen.draw(uiCtx);
+    return;
+  }
+
+  if (state === STATE.VAULT) {
+    // Reuse the drifting title background behind the vault panel.
+    drawBackground(ctx, titleScreen.bgX);
+    vaultScreen.draw(uiCtx);
     return;
   }
 
@@ -698,6 +733,7 @@ async function boot() {
   titleScreen = new TitleScreen();
   levelUpUI = new LevelUpUI();
   gameOverScreen = new GameOverScreen();
+  vaultScreen = new VaultScreen();
 
   // Load sprites + stage backgrounds (fallback colors if missing)
   state = STATE.LOADING;

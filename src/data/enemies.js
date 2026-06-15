@@ -69,7 +69,7 @@ export const ENEMY_DEFS = {
     frames: ['enemy_devil_0', 'enemy_devil_1'],
     color: '#cc2222',
     animFps: 5,
-    minTime: 90,        // ステージ2〜：遠隔攻撃をしてくる悪魔
+    minTime: 90,        // Stage 2+: Devil that uses ranged attacks
     ranged: true,
     shootCd: 2.4,
     projSpeed: 130,
@@ -102,7 +102,7 @@ export const ENEMY_DEFS = {
     frames: ['enemy_gargoyle_0', 'enemy_gargoyle_1'],
     color: '#778899',
     animFps: 5,
-    minTime: 130,       // ステージ2後半〜：飛行しつつ石弾を放つ
+    minTime: 130,       // Late Stage 2+: Flies while shooting stone projectiles
     ranged: true,
     shootCd: 2.6,
     projSpeed: 120,
@@ -118,11 +118,11 @@ export const ENEMY_DEFS = {
     width: 56,
     height: 44,
     flying: true,
-    faceLeft: true,     // 素材が左向き（他は右向き）。反転判定を反転させる
+    faceLeft: true,     // Asset faces left (others face right). Flip detection reversed
     frames: ['enemy_dragon_0', 'enemy_dragon_1', 'enemy_dragon_2'],
     color: '#cc4400',
     animFps: 5,
-    minTime: 170,       // ステージ3〜：火球を吐く
+    minTime: 170,       // Stage 3+: Breathes fireballs
     ranged: true,
     shootCd: 2.0,
     projSpeed: 150,
@@ -141,7 +141,7 @@ export const ENEMY_DEFS = {
     frames: ['enemy_dracula_0', 'enemy_dracula_1', 'enemy_dracula_2'],
     color: '#220033',
     animFps: 4,
-    minTime: 250,       // ステージ4〜：闇の弾を放つ
+    minTime: 250,       // Stage 4+: Shoots dark projectiles
     ranged: true,
     shootCd: 1.8,
     projSpeed: 160,
@@ -155,14 +155,14 @@ export function getAvailableEnemyTypes(elapsedSeconds) {
   return Object.values(ENEMY_DEFS).filter(e => e.minTime <= elapsedSeconds);
 }
 
-// 中ボス：ラージデーモンより小型のデーモン。
-// ファイアボールを撃ち、周囲の敵に防御オーラを付与（ラージデーモンより弱い）。
-// 通常のランダム出現プールには含めず、スポナーが不定期に直接出現させる。
+// Mid-Boss: A smaller demon compared to the Large Demon.
+// Fires fireballs and provides a defensive aura to nearby enemies (weaker than the Large Demon).
+// Not included in the normal random spawn pool; spawned directly by the Spawner at irregular intervals.
 export const MIDBOSS_DEF = {
   id: 'demon',
-  hp: 4000,            // 中ボス基礎HP（難易度・ステージで増加）。あっさり倒されないよう増強。
+  hp: 4000,            // Mid-boss base HP (increases with difficulty/stage). Boosted to ensure it's not too easy.
   speed: 34,
-  damage: 26,          // 接触ダメージ
+  damage: 26,          // Contact damage
   xp: 150,
   width: 52,
   height: 60,
@@ -171,7 +171,7 @@ export const MIDBOSS_DEF = {
   animFps: 3,
   minTime: 0,
   isMidBoss: true,
-  auraStrength: 0.40,  // 周囲の敵の被ダメージを最大40%軽減（ラージデーモンは70%）
+  auraStrength: 0.40,  // Reduces damage taken by nearby enemies by up to 40% (Large Demon is 70%)
   auraRange: 170,
   ranged: true,
   shootCd: 1.9,

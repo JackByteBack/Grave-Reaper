@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(echo \"exit: $?\")"
+      "Bash(echo \"exit: $?\")",
+      "Bash(grep -niA6 \"run\\\\|serve\\\\|play\\\\|start\\\\|http\" README.md)",
+      "Bash(command -v python3)",
+      "Bash(command -v python)",
+      "Bash(chmod +x serve.command)",
+      "Bash(python3 serve.py)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:8080/)",
+      "Bash(cp src/ui/title.js /tmp/title_check.mjs)",
+      "Bash(node --check /tmp/title_check.mjs)"
     ]
   }
 }

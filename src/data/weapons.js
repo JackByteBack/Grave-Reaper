@@ -80,8 +80,8 @@ export const WEAPON_DEFS = {
     color: '#88ffff',
   },
 
-  // ── 全体攻撃（AoE）武器 ──
-  // 落雷：画面内のランダムな敵に天から雷を落とし、着弾点周囲に範囲ダメージ
+  // --- AoE Weapons ---
+  // Thunderstrike: Strikes random enemies from the sky, dealing area damage upon impact.
   thunder: {
     id: 'thunder',
     name: 'Thunderstrike',
@@ -93,7 +93,7 @@ export const WEAPON_DEFS = {
     fxFrames: ['fx_lightning_0'],
     color: '#aaddff',
   },
-  // 聖光波：プレイヤー中心に光の波動を放ち、画面内の全ての敵にダメージ
+  // Holy Nova: Emits a wave of light from the player, damaging all enemies on screen.
   holynova: {
     id: 'holynova',
     name: 'Holy Nova',

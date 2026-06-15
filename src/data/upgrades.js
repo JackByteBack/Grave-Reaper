@@ -1,7 +1,7 @@
 // Skill card / upgrade definitions
 
 export const UPGRADE_DEFS = [
-  // ── 武器解放 ──
+  // --- Unlock Weapons ---
   {
     id: 'unlock_spear',
     name: 'Holy Spear',
@@ -83,7 +83,7 @@ export const UPGRADE_DEFS = [
     },
   },
 
-  // ── 全体攻撃（AoE）解放 ──
+  // --- Unlock AoE Attacks ---
   {
     id: 'unlock_thunder',
     name: 'Thunderstrike',
@@ -117,7 +117,7 @@ export const UPGRADE_DEFS = [
     },
   },
 
-  // ── 武器強化 ──
+  // --- Weapon Upgrades ---
   {
     id: 'dmg_up',
     name: 'Power Up',
@@ -169,7 +169,7 @@ export const UPGRADE_DEFS = [
     apply(state) { state.allPiercing = true; },
   },
 
-  // ── ステータス ──
+  // --- Stats ---
   {
     id: 'max_hp_up',
     name: 'Vitality',
@@ -245,8 +245,8 @@ export const UPGRADE_DEFS = [
   },
 ];
 
-// 習得済みアップグレードを1つ巻き戻す（最終ボスの弱体化魔法で使用）。
-// state は player。weaponの主武器(index0)は剥がさない。
+// Revert one acquired upgrade (used by the final boss's weakening spell).
+// 's' is the player. The main weapon (index 0) is protected from being removed.
 export function revertUpgrade(id, s) {
   switch (id) {
     case 'unlock_spear':

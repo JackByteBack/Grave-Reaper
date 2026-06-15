@@ -1,15 +1,15 @@
-// 難易度設定。「初心者」を基準とし、上位ほど敵が強化される。
+// Difficulty settings. "Beginner" is the baseline; higher settings strengthen enemies.
 //
-// 各値の意味:
-//  hpMul/dmgMul/speedMul/spawnMul … 静的な基礎倍率（難易度の下限）
-//  rampRate   … 時間経過で敵が強くなる速さ（小さいほど緩やか）
-//  intensityMax … 動的難易度の上限（プレイヤーが無傷だとここまで上がる）
-//  adaptUp    … 無傷・好調時に1秒あたり intensity が上がる量
-//  adaptDown  … 被弾・劣勢時に1秒あたり intensity が下がる量
+// Parameter meanings:
+//  hpMul/dmgMul/speedMul/spawnMul ... Static base multipliers (difficulty floor)
+//  rampRate   ... Speed at which enemies strengthen over time (lower is slower)
+//  intensityMax ... Upper bound for dynamic difficulty (reached when the player is healthy)
+//  adaptUp    ... Amount intensity increases per second when healthy/performing well
+//  adaptDown  ... Amount intensity decreases per second when hit/struggling
 //
-// 動的難易度: プレイヤーがダメージをほぼ受けていない（＝余裕がある）と
-// 敵が強く・多くなり、HPが減って苦しい時は敵が弱く・少なくなる。
-// その反応の強さを難易度ごとに変える（初心者は緩やか、ナイトメアは過激）。
+// Dynamic difficulty: When player takes minimal damage (has room to spare),
+// enemies become stronger and more frequent. When HP is low (struggling),
+// enemies weaken and spawn less. Reaction speed varies by difficulty (Beginner: gentle, Nightmare: aggressive).
 
 export const DIFFICULTIES = [
   {

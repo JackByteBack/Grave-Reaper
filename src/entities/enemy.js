@@ -18,7 +18,7 @@ export class Enemy {
     this.height = def.height;
     this.flying = def.flying || false;
 
-    // HPは難易度にしっかり比例。速度・攻撃は緩やかに上昇（理不尽さ回避）。
+    // HP scales well with difficulty. Speed & attack increase gradually (avoiding unfairness).
     this.hp = Math.floor(def.hp * difficultyScale);
     this.maxHp = this.hp;
     this.speed = def.speed * (1 + (difficultyScale - 1) * 0.22);
