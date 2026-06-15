@@ -32,7 +32,7 @@ Full-featured version hosted on [Base44](https://base44.app). Includes the game 
 > How it works: The game (this repository) is loaded in an iframe, and uses `postMessage` to send scores and data to the parent app (React). See the "🔗 Base44 Integration (postMessage)" section below for details.
 
 ### 🎮 Engine Version (Vanilla - This Repository)
-**https://junsuzuki1973.github.io/grave-reaper/**
+**[https://junsuzuki1973.github.io/grave-reaper/](https://grave-reaper.vercel.app/)**
 
 Game engine only, served via GitHub Pages. No online features — anyone can play immediately in a modern browser (no installation needed).
 
