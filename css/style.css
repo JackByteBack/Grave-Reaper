@@ -1,0 +1,128 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#game-container {
+  position: relative;
+}
+
+/* Pixel-art world: nearest-neighbour, integer scaled by JS */
+#game-canvas {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Crisp UI overlay: smooth, high-res text. Sits exactly on top. */
+#ui-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  image-rendering: auto;
+  pointer-events: none;
+}
+
+/* 全画面トグルボタン（ビューポート右上に固定） */
+#fs-btn {
+  position: fixed;
+  top: 10px;
+  right: 12px;
+  z-index: 10;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-size: 18px;
+  line-height: 32px;
+  color: #e8d8ff;
+  background: rgba(20, 8, 30, 0.55);
+  border: 1px solid rgba(200, 150, 255, 0.5);
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.15s, background 0.15s;
+}
+#fs-btn:hover {
+  opacity: 1;
+  background: rgba(60, 20, 90, 0.8);
+}
+/* 全画面中はボタンを控えめに（必要なら hover で出る） */
+:fullscreen #fs-btn { opacity: 0.25; }
+
+/* ─── Mobile touch controls ─────────────────────────────────────────────────
+   Fixed to the viewport corners so the buttons stay under the player's thumbs
+   no matter how the canvas is scaled. The container ignores pointer events;
+   only the buttons themselves are interactive, so taps elsewhere still reach
+   the game canvas (e.g. selecting level-up cards). */
+#touch-controls {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  /* Stop the browser from scrolling/zooming when thumbs touch the controls. */
+  touch-action: none;
+}
+
+.tc-cluster {
+  position: fixed;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+}
+.tc-cluster-left  { left: max(16px, env(safe-area-inset-left)); }
+.tc-cluster-right {
+  right: max(16px, env(safe-area-inset-right));
+  align-items: center;
+}
+
+.tc-btn {
+  pointer-events: auto;
+  width: 68px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  line-height: 1;
+  color: #f0e6ff;
+  background: rgba(20, 8, 34, 0.42);
+  border: 2px solid rgba(200, 150, 255, 0.55);
+  border-radius: 50%;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  transition: background 0.08s, transform 0.08s;
+}
+/* Visual feedback while held. */
+.tc-btn.tc-active {
+  background: rgba(90, 40, 140, 0.85);
+  transform: scale(0.92);
+}
+/* Jump is the primary right-thumb action — make it a touch bigger. */
+.tc-jump   { width: 80px; height: 80px; font-size: 34px; }
+.tc-attack {
+  margin-bottom: 36px;     /* lift attack up-and-left of jump for thumb reach */
+  border-color: rgba(255, 170, 120, 0.7);
+  color: #ffd9b0;
+}
+
+/* Visibility per game state (set from JS via setTouchMode). */
+#touch-controls.mode-hidden .tc-btn { display: none; }
+#touch-controls.mode-menu  .tc-attack { display: none; }   /* no attack in menus */
