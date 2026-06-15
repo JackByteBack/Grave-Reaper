@@ -20,15 +20,49 @@ Full-featured version hosted on [Base44](https://base44.app). Includes the game 
 
 Game engine only, served via GitHub Pages. No online features — anyone can play immediately in a modern browser (no installation needed).
 
+## 📱 Play as an App (Website · Installable App · Android APK)
+
+The game runs three ways from **one codebase** — website mode is unchanged.
+
+### 🌐 Website (as before)
+Just open the page in any modern browser. Nothing about this changed.
+
+### 📲 Installable App (Windows · macOS · Android · iOS) — PWA
+The game is a **Progressive Web App**, so it installs like a native app:
+- **Windows / macOS / Android (Chrome or Edge):** open the site and click the **📲 Install App** button (top-right), or use the browser's "Install app" menu item.
+- **iOS (Safari):** tap **Share → Add to Home Screen**.
+
+Once installed it launches in its own window, runs **offline** after the first load, and shows the touch controls on mobile.
+
+### 🤖 Android APK (self-contained, bundles all files)
+A real APK is built automatically in the cloud (GitHub Actions) — no toolchain needed on your machine.
+
+**Download link (after the first build on `main`):**
+```
+https://github.com/JackByteBack/shadow-vault/releases/download/latest/grave-reaper.apk
+```
+Also downloadable from the **Releases** page, or from any workflow run's **Artifacts**.
+
+To install: copy the APK to your phone, tap it, and allow "Install unknown apps" for your browser/file manager when prompted.
+
+> Build it yourself locally (needs Node, JDK 17, and the Android SDK):
+> ```bash
+> npm install
+> npm run apk        # → android/app/build/outputs/apk/debug/app-debug.apk
+> ```
+> The APK wrapper uses [Capacitor](https://capacitorjs.com). The web payload is assembled into `www/` by `npm run build:web`.
+
 ## 🎮 Controls
 
-| Action | Key |
-|--------|-----|
-| Move | `←` / `→` or `A` / `D` |
-| Jump | `Space` / `Enter` |
-| Attack | **Auto** (fires automatically based on weapon cooldown) |
-| Skill Select | `←` `→` to move, `Enter` / `1`–`3` to confirm |
-| Fullscreen | `F` key or the ⛶ button (top-right) |
+| Action | Keyboard | Mobile (touch) |
+|--------|----------|----------------|
+| Move | `←` / `→` or `A` / `D` | ◀ ▶ buttons (bottom-left) |
+| Jump | `Space` / `Enter` | ⤴ button (bottom-right) |
+| Fire / Attack | **Auto** (fires on weapon cooldown) | ⚔ **Fire** button (bottom-right) — also auto-fires |
+| Skill Select | `←` `→` to move, `Enter` / `1`–`3` to confirm | tap a card |
+| Fullscreen | `F` key or the ⛶ button (top-right) | ⛶ button |
+
+Touch controls appear automatically on phones/tablets (and in the APK). On a desktop you can force them with `?touch=1` in the URL.
 
 ## 🕹 Game Flow
 
@@ -99,18 +133,28 @@ python serve.py        # → http://localhost:8080
 ## 📁 Project Structure
 
 ```
-index.html        Two-canvas entry point
-css/style.css     Layout & styling
+index.html              Two-canvas entry point (+ PWA manifest/meta links)
+manifest.webmanifest    PWA app metadata (name, icons, display)
+sw.js                   Service worker (offline cache for the installed app)
+css/style.css           Layout & styling (+ install button, touch controls)
 src/
-  engine/         Loop, input, camera, sprites, animation, audio
-  entities/       Player, enemies, boss, final boss, projectiles, pickups
-  systems/        Spawner, combat, leveling
-  ui/             HUD, level-up, title, game over
-  data/           Weapons, enemies, skills, difficulty, stage definitions
+  pwa.js                Service-worker registration + Install App button
+  engine/               Loop, input, touch controls, camera, sprites, audio
+  entities/             Player, enemies, boss, final boss, projectiles, pickups
+  systems/              Spawner, combat, leveling
+  ui/                   HUD, level-up, title, game over
+  data/                 Weapons, enemies, skills, difficulty, stage definitions
 assets/
-  sprites/        Extracted pixel art sprites
-  backgrounds/    Stage backgrounds
-tools/            Python scripts for sprite extraction
+  sprites/              Extracted pixel art sprites
+  backgrounds/          Stage backgrounds
+  icons/                App icons (PWA + favicon + apple-touch)
+tools/
+  make_icons.py         Generates app icons (stdlib-only PNG encoder)
+scripts/build-web.mjs   Assembles www/ for the APK build
+capacitor.config.json   Capacitor (APK wrapper) config
+package.json            npm scripts + Capacitor deps
+resources/icon.png      1024px source icon for the APK launcher
+.github/workflows/      build-apk.yml — cloud APK build + Release publish
 ```
 
 ## 📜 License / Credits

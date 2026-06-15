@@ -63,6 +63,29 @@ body {
 /* Keep button subtle during fullscreen (shown on hover if needed) */
 :fullscreen #fs-btn { opacity: 0.25; }
 
+/* Install-as-app button (sits left of the fullscreen toggle, top-right).
+   Hidden by default; src/pwa.js reveals it only when installation is offered. */
+#install-btn {
+  position: fixed;
+  top: 10px;
+  right: 54px;
+  z-index: 11;
+  height: 34px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #f0e6ff;
+  background: rgba(60, 20, 90, 0.78);
+  border: 1px solid rgba(200, 150, 255, 0.7);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.08s;
+}
+#install-btn:hover { background: rgba(90, 40, 140, 0.92); }
+#install-btn:active { transform: scale(0.96); }
+#install-btn[hidden] { display: none; }
+
 /* ─── Mobile touch controls ─────────────────────────────────────────────────
    Fixed to the viewport corners so the buttons stay under the player's thumbs
    no matter how the canvas is scaled. The container ignores pointer events;
@@ -117,10 +140,20 @@ body {
 }
 /* Jump is the primary right-thumb action — make it a touch bigger. */
 .tc-jump   { width: 80px; height: 80px; font-size: 34px; }
+/* Fire / Attack button: prominent, warm-toned so it reads as the action button. */
 .tc-attack {
-  margin-bottom: 36px;     /* lift attack up-and-left of jump for thumb reach */
-  border-color: rgba(255, 170, 120, 0.7);
+  margin-bottom: 40px;     /* lift fire up-and-left of jump for thumb reach */
+  width: 76px;
+  height: 76px;
+  font-size: 34px;
+  border-color: rgba(255, 150, 90, 0.85);
   color: #ffd9b0;
+  background: rgba(70, 22, 14, 0.5);
+  box-shadow: 0 0 10px rgba(255, 130, 60, 0.25);
+}
+.tc-attack.tc-active {
+  background: rgba(200, 70, 30, 0.9);
+  box-shadow: 0 0 16px rgba(255, 140, 60, 0.6);
 }
 
 /* Visibility per game state (set from JS via setTouchMode). */

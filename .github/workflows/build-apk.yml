@@ -1,0 +1,92 @@
+name: Build Android APK
+
+# Builds the Grave Reaper APK in the cloud (no local Android toolchain needed)
+# and publishes it as a downloadable Release asset. The web app is wrapped with
+# Capacitor, which bundles every file under www/ into a self-contained APK.
+#
+# After the first successful run on `main`, the APK is always available at:
+#   https://github.com/<owner>/<repo>/releases/download/latest/grave-reaper.apk
+# You can also grab it from the run's "Artifacts" (works on PRs / dispatch too).
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:        # lets you build on-demand from the Actions tab
+
+permissions:
+  contents: write           # needed to create/update the Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Java (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools" >/dev/null
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Build web bundle (www/)
+        run: npm run build:web
+
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Sync web assets into Android project
+        run: npx cap sync android
+
+      - name: Generate app icons (best-effort)
+        continue-on-error: true
+        run: |
+          cp resources/icon.png resources/logo.png
+          npx capacitor-assets generate --android --assetPath resources
+
+      - name: Build debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Stage APK
+        run: |
+          mkdir -p dist
+          cp android/app/build/outputs/apk/debug/app-debug.apk dist/grave-reaper.apk
+          ls -la dist
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: grave-reaper-apk
+          path: dist/grave-reaper.apk
+          if-no-files-found: error
+
+      - name: Publish APK to Releases (latest)
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Grave Reaper APK (latest)
+          body: |
+            Latest auto-built Android APK for Grave Reaper.
+            Download **grave-reaper.apk** below and install on your Android device
+            (enable "Install unknown apps" for your browser/file manager first).
+          files: dist/grave-reaper.apk
+          make_latest: true
