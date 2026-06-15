@@ -9,7 +9,9 @@
       "Bash(python3 serve.py)",
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:8080/)",
       "Bash(cp src/ui/title.js /tmp/title_check.mjs)",
-      "Bash(node --check /tmp/title_check.mjs)"
+      "Bash(node --check /tmp/title_check.mjs)",
+      "Bash(git commit css/style.css -m 'Translate CSS comments to English *)",
+      "Bash(git push *)"
     ]
   }
 }

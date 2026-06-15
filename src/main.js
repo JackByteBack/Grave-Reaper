@@ -151,8 +151,8 @@ window.addEventListener('keydown', (e) => {
 const fsBtn = document.getElementById('fs-btn');
 if (fsBtn) fsBtn.addEventListener('click', () => { toggleFullscreen(); fsBtn.blur(); });
 
-// ゲームオーバー画面の「ランキングを見る」ボタンのクリック判定。
-// 表示は canvas 上に描画しているため、クリック座標を論理480×270に変換して矩形判定する。
+// Click detection for the "View Rankings" button on the game over screen.
+// Since it is drawn on the canvas, convert click coordinates to logical 480x270 for collision detection.
 // Tap/click handling on the game surface. The UI overlay canvas has
 // pointer-events:none, so taps land here and we map them into logical
 // 480×270 coordinates, then dispatch by game state.
@@ -225,13 +225,13 @@ let gameStats = {
   totalGems: 0,
 };
 
-// ステージ / 難易度の状態
-let currentStage = 1;            // 1..NUM_STAGES（背景描画が参照）
+// Stage / Difficulty state
+let currentStage = 1;            // 1..NUM_STAGES (referenced by background rendering)
 let difficulty = getDifficulty('beginner');
-let stageBanner = { text: '', timer: 0 };   // ステージ突入時の表示
+let stageBanner = { text: '', timer: 0 };   // Banner displayed when entering a stage
 let victory = false;
-let bossWarned = false;          // ボス出現警告を出したか
-let stageStartTime = 0;          // 現ステージ開始時の累積時間
+let bossWarned = false;          // Whether boss appearance warning was shown
+let stageStartTime = 0;          // Accumulated time when the current stage started
 
 // ─── Background drawing ────────────────────────────────────────────────────
 // Each stage uses a single wide scroll image. It is mirror-tiled so the left
@@ -385,7 +385,7 @@ function postGameOverToParent(isVictory) {
       },
     }, '*');
   } catch (e) {
-    // 送信失敗はゲーム進行に影響させない
+    // Send failure should not affect game progress
     console.warn('postMessage to parent failed:', e);
   }
 }
@@ -407,12 +407,12 @@ function onBossDefeated() {
     endGame(true);
     return;
   }
-  // 次のステージへ
+  // To next stage
   currentStage += 1;
   stageStartTime = gameStats.elapsedTime;
   bossWarned = false;
   spawner.resetForNewStage(currentStage);
-  enemies = [];          // 雑魚を一掃して新ステージへ
+  enemies = [];          // Clear regular enemies for the new stage
   bosses = [];
   combat.enemyProjectiles = [];
   setStage(currentStage);
@@ -520,10 +520,10 @@ function updatePlaying(dt) {
   enemies = enemies.filter(e => !e.dead);
   bosses = bosses.filter(b => !b.dead);
 
-  // ステージバナーのフェード
+  // Stage banner fade
   if (stageBanner.timer > 0) stageBanner.timer -= dt;
 
-  // ボス出現の予告（出現10秒前）
+  // Boss appearance warning (10 seconds before arrival)
   if (!bossWarned && stageElapsed >= BOSS_SPAWN_TIME - 10) {
     bossWarned = true;
     stageBanner = { text: '⚠ Large Demon approaching… ⚠', timer: 3.5 };
@@ -589,7 +589,7 @@ function processDeadEnemies() {
     }
   }
 
-  // 召喚された手下デーモンの死亡ではステージ進行・勝利しない
+  // Deaths of summoned minion demons do not trigger stage progression or victory
   if (deadBosses.some(b => !b.isSummon)) bossDied = true;
   return bossDied;
 }
@@ -607,11 +607,11 @@ function updateGameOver(dt) {
   } else if (result === 'title') {
     state = STATE.TITLE;
   } else if (result === 'ranking') {
-    goToRankingParent();   // 親へランキング遷移を依頼（ゲーム状態は変えない）
+    goToRankingParent();   // Request ranking transition from parent (does not change game state)
   }
 }
 
-// ─── Main update ───────────────────────────────────────────────────────────
+// --- Main Update -----------------------------------------------------------
 function update(dt) {
   switch (state) {
     case STATE.TITLE:    updateTitle(dt);    break;
@@ -630,24 +630,24 @@ function update(dt) {
 // Stage entry banner (large display in center, fade out)
 function drawStageBanner(uictx) {
   const W = 480, H = 270;
-  const JP = "'Yu Gothic', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif";
+  const UI_FONT = "'Yu Gothic', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif";
   const t = stageBanner.timer;
   const alpha = Math.min(1, t) * (t > 2.5 ? (3 - t) * 2 : 1); // Fade in/out
   uictx.save();
   uictx.globalAlpha = Math.max(0, alpha);
   uictx.textAlign = 'center';
-  // 背景帯
+  // Background band
   uictx.fillStyle = 'rgba(0,0,0,0.55)';
   uictx.fillRect(0, H / 2 - 26, W, 52);
   uictx.fillStyle = '#ffdd44';
-  uictx.font = `bold 22px ${JP}`;
+  uictx.font = `bold 22px ${UI_FONT}`;
   uictx.shadowColor = '#aa3300';
   uictx.shadowBlur = 10;
   uictx.fillText(stageBanner.text, W / 2, H / 2 + 8);
   uictx.restore();
 }
 
-// ─── Render ────────────────────────────────────────────────────────────────
+// --- Render ----------------------------------------------------------------
 function render() {
   ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
   clearUI();   // clear crisp overlay each frame
