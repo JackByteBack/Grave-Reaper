@@ -458,14 +458,6 @@ Thanks to all our amazing contributors! See [CONTRIBUTORS.md](CONTRIBUTORS.md)
 
 ---
 
-## Related Projects
-
-- [Project Alpha](https://github.com/example/project-alpha) - Complementary project
-- [Project Beta](https://github.com/example/project-beta) - Related tool
-- [Project Gamma](https://github.com/example/project-gamma) - Integration helper
-
----
-
 ## Stay Updated
 
 ⭐ Star this repository to stay updated with latest releases
