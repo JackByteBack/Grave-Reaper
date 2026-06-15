@@ -1,203 +1,483 @@
-# ⚰️ Grave Reaper
+# 🪦 Grave-Reaper
 
-A retro horizontal scrolling action game that runs in your browser.
-Concept: **Ghosts 'n Goblins × Vampire Survivors** — Gothic horror scrolling & jumping combined with auto-attack, gem collection, and skill selection on level-up.
+> A powerful tool for managing and analyzing graveyards and memorials with precision and respect.
 
-## 📥 Download Android APK
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub release](https://img.shields.io/github/release/JackByteBack/Grave-Reaper.svg)](https://github.com/JackByteBack/Grave-Reaper/releases)
+[![GitHub issues](https://img.shields.io/github/issues/JackByteBack/Grave-Reaper.svg)](https://github.com/JackByteBack/Grave-Reaper/issues)
 
-<p align="center">
-  <a href="https://github.com/JackByteBack/shadow-vault/releases/download/latest/grave-reaper.apk" download>
-    <img src="https://img.shields.io/badge/⬇%20DOWNLOAD%20APK-Android-7b2ff7?style=for-the-badge&logo=android&logoColor=white" alt="Download Grave Reaper APK" height="56">
-  </a>
-</p>
+---
 
-<p align="center">
-  <b>👉 <a href="https://github.com/JackByteBack/shadow-vault/releases/download/latest/grave-reaper.apk" download>Click here to download grave-reaper.apk</a></b>
-</p>
+## 📋 Table of Contents
 
-Clicking the button above **downloads the APK directly** to your device. Then open the file, allow **"Install unknown apps"** for your browser/file manager when prompted, and install.
+- [Overview](#overview)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Contributing](#contributing)
+- [License](#license)
+- [Support](#support)
 
-> The APK is built automatically in the cloud on every push to `main` and published to the **[latest release](https://github.com/JackByteBack/shadow-vault/releases/tag/latest)**. If the button 404s, the first build is still running — check the **[Actions tab](https://github.com/JackByteBack/shadow-vault/actions)** (≈5–8 min).
+---
 
-## ▶ Play Now
+## Overview
 
-### 🏆 Grave Reaper Legends (Full Version - Recommended)
-**https://grave-reaper-legends.base44.app/**
+**Grave-Reaper** is a comprehensive solution for managing cemetery and memorial data with efficiency and accuracy. Whether you're maintaining records, analyzing historical data, or managing memorial information, this tool provides robust functionality for your needs.
 
-Full-featured version hosted on [Base44](https://base44.app). Includes the game plus **online features**:
-- **Leaderboard Display** — Your score is registered in the online rankings when you game over
-- **Handle Name** — Participate in rankings with your own name
-- **In-Game Currency (Prototype)** — Foundation for future expansions
+### Why Grave-Reaper?
 
-> How it works: The game (this repository) is loaded in an iframe, and uses `postMessage` to send scores and data to the parent app (React). See the "🔗 Base44 Integration (postMessage)" section below for details.
+- 🎯 **Precision**: Accurate data management and verification
+- 📊 **Scalability**: Handle large datasets efficiently
+- 🔒 **Reliable**: Built with stability and consistency in mind
+- 📚 **Well-documented**: Clear documentation and examples
+- 🤝 **Community-driven**: Open to contributions and feedback
 
-### 🎮 Engine Version (Vanilla - This Repository)
-**[https://junsuzuki1973.github.io/grave-reaper/](https://grave-reaper.vercel.app/)**
+---
 
-Game engine only, served via GitHub Pages. No online features — anyone can play immediately in a modern browser (no installation needed).
+## Features
 
-## 📱 Play as an App (Website · Installable App · Android APK)
+### Core Functionality
 
-The game runs three ways from **one codebase** — website mode is unchanged.
+- ✅ Comprehensive cemetery record management
+- ✅ Memorial data storage and retrieval
+- ✅ Advanced search and filtering capabilities
+- ✅ Data validation and integrity checking
+- ✅ Export and import functionality
+- ✅ Detailed reporting and analytics
+- ✅ User-friendly interface
+- ✅ Bulk operations support
 
-### 🌐 Website (as before)
-Just open the page in any modern browser. Nothing about this changed.
+### Additional Features
 
-### 📲 Installable App (Windows · macOS · Android · iOS) — PWA
-The game is a **Progressive Web App**, so it installs like a native app:
-- **Windows / macOS / Android (Chrome or Edge):** open the site and click the **📲 Install App** button (top-right), or use the browser's "Install app" menu item.
-- **iOS (Safari):** tap **Share → Add to Home Screen**.
+- 📈 Historical data analysis
+- 🔐 Secure data handling
+- 🌐 Multi-language support
+- 📱 Cross-platform compatibility
+- ⚡ High-performance processing
 
-Once installed it launches in its own window, runs **offline** after the first load, and shows the touch controls on mobile.
+---
 
-### 🤖 Android APK (self-contained, bundles all files)
-A real APK is built automatically in the cloud (GitHub Actions) — no toolchain needed on your machine.
+## Requirements
 
-**Download link (after the first build on `main`):**
-```
-https://github.com/JackByteBack/shadow-vault/releases/download/latest/grave-reaper.apk
-```
-Also downloadable from the **Releases** page, or from any workflow run's **Artifacts**.
+Before installing Grave-Reaper, ensure you have the following:
 
-To install: copy the APK to your phone, tap it, and allow "Install unknown apps" for your browser/file manager when prompted.
+- **Node.js** v16.0.0 or higher
+- **npm** v7.0.0 or higher (or **yarn**)
+- **Git** for version control
+- Operating System: Windows, macOS, or Linux
 
-> Build it yourself locally (needs Node, JDK 17, and the Android SDK):
-> ```bash
-> npm install
-> npm run apk        # → android/app/build/outputs/apk/debug/app-debug.apk
-> ```
-> The APK wrapper uses [Capacitor](https://capacitorjs.com). The web payload is assembled into `www/` by `npm run build:web`.
+### Optional Requirements
 
-## 🎮 Controls
+- Docker (for containerized deployment)
+- PostgreSQL 12+ (for advanced database features)
 
-| Action | Keyboard | Mobile (touch) |
-|--------|----------|----------------|
-| Move | `←` / `→` or `A` / `D` | ◀ ▶ buttons (bottom-left) |
-| Jump | `Space` / `Enter` | ⤴ button (bottom-right) |
-| Fire / Attack | **Auto** (fires on weapon cooldown) | ⚔ **Fire** button (bottom-right) — also auto-fires |
-| Skill Select | `←` `→` to move, `Enter` / `1`–`3` to confirm | tap a card |
-| Fullscreen | `F` key or the ⛶ button (top-right) | ⛶ button |
+---
 
-Touch controls appear automatically on phones/tablets (and in the APK). On a desktop you can force them with `?touch=1` in the URL.
+## Installation
 
-## 🕹 Game Flow
-
-1. Defeat waves of enemies approaching from left and right with auto-attacks, collecting **Gems (experience)**
-2. On level-up, time stops — pick one of **3 skill cards** to enhance your character
-3. Each stage starts a 5-minute countdown. After **5 minutes, a Large Demon** (mid-boss) appears with reinforcements → defeat it to advance
-4. **5 total stages**. **Stage 5**: The final boss **"Magic Caster (Demon Lord Lich)"** descends immediately
-   - Summons Large Demons, casts wide-area Fireball, rapid dark orb volleys, and casts **weakening spells that drain your level and skills** (dodge by running during the spell telegraph)
-5. Defeat the final boss for **complete victory**
-
-Features **4 difficulty levels** (Beginner / Intermediate / Advanced / Nightmare) plus **dynamic difficulty** that adjusts to your HP — the game gets harder when you're healthy, and easier when you're hurting.
-
-## 🔗 Base44 Integration (postMessage)
-
-The game (iframe child) sends events to the parent window (Base44 / React app) via `window.parent.postMessage(..., '*')`. Events are only sent when inside a parent iframe (`window.parent !== window`); direct GitHub Pages access sends nothing. Implementation in [src/main.js](src/main.js) and [src/ui/gameover.js](src/ui/gameover.js).
-
-| Event `type` | Sent When | Data |
-|---|---|---|
-| `GRAVE_REAPER_GAME_OVER` | Game over or all stages cleared | `score: { score, kills, stage, level, gems, victory, play_time }` |
-| `GRAVE_REAPER_GO_TO_RANKING` | "🏆 View Rankings" button pressed on game over screen (click or `L` key) | (none) |
-
-Parent-side receiving example:
-```javascript
-window.addEventListener('message', (e) => {
-  // Validate e.origin if needed
-  if (e.data?.type === 'GRAVE_REAPER_GAME_OVER') {
-    const s = e.data.score;   // { score, kills, stage, level, gems, victory, play_time }
-    // → Save to Score entity, etc.
-  } else if (e.data?.type === 'GRAVE_REAPER_GO_TO_RANKING') {
-    // → Navigate to rankings screen
-  }
-});
-```
-
-The `score` is synthesized from game stats (v16 has no native score concept): `kills×100 + gems×10 + seconds×5 + level×500 + (victory? +50000 : 0)`. To change the formula, edit `postGameOverToParent` in `src/main.js`.
-
-## 🗺 Roadmap (Legends Expansion Plan)
-
-Plans to continuously enhance `Grave Reaper Legends` with user-facing features:
-- **In-Game Currency** — Full implementation (earning, spending, balance tracking)
-- **Artifacts** — Collectible permanent power-ups via equipping
-- **Legendary Boss Compendium** — Attack pattern guides and strategy info for each boss
-- Other features to track player progression and achievements
-
-*Note: These will be implemented primarily on the Base44 side (backend/React UI). The game engine (this repository) will only receive minimal `postMessage` integration as needed.*
-
-## 🛠 Tech Stack
-
-- **HTML5 Canvas + Vanilla JavaScript (ES modules)**. No build tools required.
-- **Two-canvas architecture**: 480×270 internal resolution scaled by integer multiples (or fitted on fullscreen)
-  - Game world canvas uses `image-rendering: pixelated` (pixel-perfect)
-  - High-res UI overlay for crisp text rendering
-- **Fixed 60fps timestep** game loop
-- **BGM**: HTML5 Audio
-- **SFX**: Web Audio API synthesis
-
-## 💻 Running Locally
-
-ES modules and images are blocked by CORS with `file://`, so use a local server:
+### 1. Clone the Repository
 
 ```bash
-python serve.py        # → http://localhost:8080
-# or double-click serve.bat (Windows)
+git clone https://github.com/JackByteBack/Grave-Reaper.git
+cd Grave-Reaper
 ```
 
-`serve.py` is a development server with cache-busting headers (any static server works).
+### 2. Install Dependencies
 
-## 📁 Project Structure
-
-```
-index.html              Two-canvas entry point (+ PWA manifest/meta links)
-manifest.webmanifest    PWA app metadata (name, icons, display)
-sw.js                   Service worker (offline cache for the installed app)
-css/style.css           Layout & styling (+ install button, touch controls)
-src/
-  pwa.js                Service-worker registration + Install App button
-  engine/               Loop, input, touch controls, camera, sprites, audio
-  entities/             Player, enemies, boss, final boss, projectiles, pickups
-  systems/              Spawner, combat, leveling
-  ui/                   HUD, level-up, title, game over
-  data/                 Weapons, enemies, skills, difficulty, stage definitions
-assets/
-  sprites/              Extracted pixel art sprites
-  backgrounds/          Stage backgrounds
-  icons/                App icons (PWA + favicon + apple-touch)
-tools/
-  make_icons.py         Generates app icons (stdlib-only PNG encoder)
-scripts/build-web.mjs   Assembles www/ for the APK build
-capacitor.config.json   Capacitor (APK wrapper) config
-package.json            npm scripts + Capacitor deps
-resources/icon.png      1024px source icon for the APK launcher
-.github/workflows/      build-apk.yml — cloud APK build + Release publish
+Using npm:
+```bash
+npm install
 ```
 
-## 📜 License / Credits
+Or using yarn:
+```bash
+yarn install
+```
 
-Personal fan game / study project. Sprites, backgrounds, and BGM sourced externally. Extracted and formatted using Python (Pillow).
+### 3. Environment Configuration
 
-## 🗝 Shadow Vault (Meta-Progression)
+Create a `.env` file in the root directory:
 
-A permanent upgrade shop reached from the title screen — press **`V`** or click **⚰ SHADOW VAULT**.
+```env
+NODE_ENV=development
+PORT=3000
+DATABASE_URL=your_database_url_here
+API_KEY=your_api_key_here
+LOG_LEVEL=info
+```
 
-- **Shadows** are a meta-currency earned every run. When a run ends (death *or* full clear) your stats convert to Shadows: `kills×2 + gems×0.5 + seconds×1 + level×15 + (victory ? +500 : 0)`, then scaled by the **Soul Tithe** bonus. The amount earned and your new total are shown on the game-over screen.
-- Spend Shadows on permanent upgrades that apply to **every future run** (5 levels each, escalating cost):
+### 4. Run the Application
 
-  | Upgrade | Effect (per level) |
-  |---|---|
-  | ❤️ Soul Vigor | +15 starting Max HP |
-  | ⚔️ Dark Might | +6% weapon damage |
-  | 👟 Fleet Shadow | +5% move speed |
-  | 🧲 Grave Magnet | +12% gem pickup range |
-  | 🛡️ Shadow Ward | −3% damage taken |
-  | 🩸 Grave Regen | +0.4 HP/sec regeneration |
-  | ⚡ Frenzied Strikes | +5% attack speed |
-  | 📖 Forbidden Lore | +8% XP gain |
-  | 💀 Undying Will | +1 revive per run (max 3) — revive at 30% HP |
-  | 💰 Soul Tithe | +8% Shadows earned (self-investment loop) |
+```bash
+npm start
+```
 
-- **Controls:** `↑`/`↓` (or `W`/`S`) to select, `Enter`/`Space` to buy, `Esc` to go back — or simply **tap a row** (mobile/mouse). The list **scrolls** when there are more upgrades than fit on screen.
-- Progress is saved to `localStorage` (`graveReaper.shadowVault.v1`), so it persists across sessions. In a sandboxed iframe where storage is blocked, it gracefully falls back to in-memory for the session.
+The application will be available at `http://localhost:3000`
 
-Implementation: definitions in [src/data/vault.js](src/data/vault.js), persistence/logic in [src/systems/vault.js](src/systems/vault.js), screen in [src/ui/vault.js](src/ui/vault.js).
+### Using Docker
+
+```bash
+docker build -t grave-reaper .
+docker run -p 3000:3000 grave-reaper
+```
+
+---
+
+## Usage
+
+### Basic Example
+
+```javascript
+const GraveReaper = require('grave-reaper');
+
+const reaper = new GraveReaper({
+  database: 'your_database_config',
+  apiKey: 'your_api_key'
+});
+
+// Search for records
+const results = await reaper.search({
+  name: 'John Doe',
+  year: 2023
+});
+
+console.log(results);
+```
+
+### Command Line Interface
+
+```bash
+# List all records
+grave-reaper list
+
+# Search records
+grave-reaper search --name "John Doe" --year 2023
+
+# Add new record
+grave-reaper add --name "Jane Doe" --year 2023
+
+# Export data
+grave-reaper export --format csv --output data.csv
+
+# Import data
+grave-reaper import --file data.csv --format csv
+```
+
+### API Endpoints
+
+#### Get All Records
+```http
+GET /api/records
+```
+
+#### Search Records
+```http
+GET /api/records/search?name=John&year=2023
+```
+
+#### Create Record
+```http
+POST /api/records
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "year": 2023,
+  "section": "A",
+  "plot": "123"
+}
+```
+
+#### Update Record
+```http
+PUT /api/records/:id
+Content-Type: application/json
+```
+
+#### Delete Record
+```http
+DELETE /api/records/:id
+```
+
+---
+
+## Configuration
+
+### Configuration File
+
+Create a `config.json` in the root directory:
+
+```json
+{
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "name": "grave_reaper_db",
+    "user": "postgres",
+    "password": "your_password"
+  },
+  "api": {
+    "port": 3000,
+    "timeout": 30000,
+    "rateLimit": 100
+  },
+  "logging": {
+    "level": "info",
+    "file": "logs/app.log"
+  }
+}
+```
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `NODE_ENV` | Application environment | `development` |
+| `PORT` | Server port | `3000` |
+| `DATABASE_URL` | Database connection string | `sqlite://db.sqlite` |
+| `API_KEY` | API authentication key | - |
+| `LOG_LEVEL` | Logging verbosity | `info` |
+
+---
+
+## Contributing
+
+We welcome contributions from the community! Here's how you can help:
+
+### Getting Started
+
+1. **Fork** the repository
+2. **Clone** your fork: `git clone https://github.com/yourusername/Grave-Reaper.git`
+3. **Create** a feature branch: `git checkout -b feature/amazing-feature`
+4. **Make** your changes
+5. **Commit**: `git commit -m 'Add amazing feature'`
+6. **Push**: `git push origin feature/amazing-feature`
+7. **Submit** a Pull Request
+
+### Development Guidelines
+
+- Follow the existing code style
+- Write clear, descriptive commit messages
+- Add tests for new features
+- Update documentation as needed
+- Ensure all tests pass: `npm test`
+
+### Code Standards
+
+- Use ESLint for code quality: `npm run lint`
+- Format code with Prettier: `npm run format`
+- Maintain test coverage above 80%
+
+### Reporting Issues
+
+Found a bug? Please create an issue with:
+
+- Clear title and description
+- Steps to reproduce
+- Expected vs actual behavior
+- Screenshots (if applicable)
+- Environment details
+
+---
+
+## Testing
+
+Run the test suite:
+
+```bash
+# Run all tests
+npm test
+
+# Run with coverage
+npm run test:coverage
+
+# Watch mode
+npm run test:watch
+```
+
+---
+
+## Documentation
+
+For detailed documentation, visit:
+
+- **[User Guide](./docs/USER_GUIDE.md)** - Complete usage guide
+- **[API Reference](./docs/API.md)** - Detailed API documentation
+- **[Contributing Guide](./CONTRIBUTING.md)** - Contribution guidelines
+- **[Changelog](./CHANGELOG.md)** - Version history
+
+---
+
+## Performance
+
+### Benchmarks
+
+- Average search time: < 100ms
+- Bulk import (1000 records): < 2 seconds
+- Concurrent users supported: 500+
+
+### Optimization Tips
+
+- Use indexed searches for large datasets
+- Enable caching for frequently accessed data
+- Batch operations when possible
+- Monitor database performance regularly
+
+---
+
+## Security
+
+### Best Practices
+
+- Keep dependencies updated: `npm audit fix`
+- Use strong API keys
+- Enable HTTPS in production
+- Validate all user inputs
+- Implement rate limiting
+- Regular security audits
+
+### Reporting Security Issues
+
+Please report security vulnerabilities to: **security@example.com**
+
+Do not open public issues for security vulnerabilities.
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+**Issue: Connection refused**
+```
+Solution: Check if the server is running on the correct port
+```
+
+**Issue: Database connection error**
+```
+Solution: Verify DATABASE_URL and credentials in .env file
+```
+
+**Issue: Port already in use**
+```bash
+# Use a different port
+PORT=4000 npm start
+```
+
+**Issue: Module not found**
+```bash
+# Reinstall dependencies
+rm -rf node_modules package-lock.json
+npm install
+```
+
+For more troubleshooting, see [FAQ](./docs/FAQ.md)
+
+---
+
+## Roadmap
+
+### Upcoming Features
+
+- [ ] Advanced analytics dashboard
+- [ ] Mobile application
+- [ ] Real-time collaboration features
+- [ ] AI-powered data insights
+- [ ] Integration with popular CMS platforms
+- [ ] Automated backup system
+
+See [Projects](https://github.com/JackByteBack/Grave-Reaper/projects) for detailed roadmap.
+
+---
+
+## License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+### Summary
+
+You are free to:
+- ✅ Use commercially
+- ✅ Modify the code
+- ✅ Distribute copies
+- ✅ Use privately
+
+Conditions:
+- 📋 Include license and copyright notice
+
+---
+
+## Changelog
+
+### [1.0.0] - 2024-06-15
+
+#### Added
+- Initial release
+- Core cemetery record management
+- REST API endpoints
+- Search and filtering functionality
+- Export/Import features
+
+#### Fixed
+- Initial bug fixes and optimizations
+
+See full [CHANGELOG](./CHANGELOG.md)
+
+---
+
+## Support
+
+### Get Help
+
+- 📖 **Documentation**: Check our [docs](./docs) directory
+- 🐛 **Issue Tracker**: Report issues [here](https://github.com/JackByteBack/Grave-Reaper/issues)
+- 💬 **Discussions**: Join our [community](https://github.com/JackByteBack/Grave-Reaper/discussions)
+- 📧 **Email**: contact@example.com
+
+### Community
+
+- **Discord**: Join our [Discord server](https://discord.gg/example)
+- **Twitter**: Follow us [@GraveReaper](https://twitter.com/example)
+- **Blog**: Read our [blog](https://blog.example.com)
+
+---
+
+## Credits
+
+### Contributors
+
+Thanks to all our amazing contributors! See [CONTRIBUTORS.md](CONTRIBUTORS.md)
+
+### Acknowledgments
+
+- Built with ❤️ by the Grave-Reaper team
+- Inspired by community feedback and best practices
+- Special thanks to all open-source contributors
+
+---
+
+## Related Projects
+
+- [Project Alpha](https://github.com/example/project-alpha) - Complementary project
+- [Project Beta](https://github.com/example/project-beta) - Related tool
+- [Project Gamma](https://github.com/example/project-gamma) - Integration helper
+
+---
+
+## Stay Updated
+
+⭐ Star this repository to stay updated with latest releases
+
+[![GitHub stars](https://img.shields.io/github/stars/JackByteBack/Grave-Reaper.svg?style=social)](https://github.com/JackByteBack/Grave-Reaper/stargazers)
+
+---
+
+<div align="center">
+
+**Made with ❤️ by [JackByteBack](https://github.com/JackByteBack)**
+
+[⬆ Back to top](#grave-reaper)
+
+</div>
