@@ -3,6 +3,22 @@
 A retro horizontal scrolling action game that runs in your browser.
 Concept: **Ghosts 'n Goblins × Vampire Survivors** — Gothic horror scrolling & jumping combined with auto-attack, gem collection, and skill selection on level-up.
 
+## 📥 Download Android APK
+
+<p align="center">
+  <a href="https://github.com/JackByteBack/shadow-vault/releases/download/latest/grave-reaper.apk" download>
+    <img src="https://img.shields.io/badge/⬇%20DOWNLOAD%20APK-Android-7b2ff7?style=for-the-badge&logo=android&logoColor=white" alt="Download Grave Reaper APK" height="56">
+  </a>
+</p>
+
+<p align="center">
+  <b>👉 <a href="https://github.com/JackByteBack/shadow-vault/releases/download/latest/grave-reaper.apk" download>Click here to download grave-reaper.apk</a></b>
+</p>
+
+Clicking the button above **downloads the APK directly** to your device. Then open the file, allow **"Install unknown apps"** for your browser/file manager when prompted, and install.
+
+> The APK is built automatically in the cloud on every push to `main` and published to the **[latest release](https://github.com/JackByteBack/shadow-vault/releases/tag/latest)**. If the button 404s, the first build is still running — check the **[Actions tab](https://github.com/JackByteBack/shadow-vault/actions)** (≈5–8 min).
+
 ## ▶ Play Now
 
 ### 🏆 Grave Reaper Legends (Full Version - Recommended)
