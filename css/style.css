@@ -37,7 +37,7 @@ body {
   pointer-events: none;
 }
 
-/* 全画面トグルボタン（ビューポート右上に固定） */
+/* Fullscreen toggle button (fixed to top-right of viewport) */
 #fs-btn {
   position: fixed;
   top: 10px;
@@ -60,7 +60,7 @@ body {
   opacity: 1;
   background: rgba(60, 20, 90, 0.8);
 }
-/* 全画面中はボタンを控えめに（必要なら hover で出る） */
+/* Keep button subtle during fullscreen (shown on hover if needed) */
 :fullscreen #fs-btn { opacity: 0.25; }
 
 /* ─── Mobile touch controls ─────────────────────────────────────────────────
