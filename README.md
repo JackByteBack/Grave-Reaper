@@ -131,9 +131,13 @@ A permanent upgrade shop reached from the title screen — press **`V`** or clic
   | 👟 Fleet Shadow | +5% move speed |
   | 🧲 Grave Magnet | +12% gem pickup range |
   | 🛡️ Shadow Ward | −3% damage taken |
+  | 🩸 Grave Regen | +0.4 HP/sec regeneration |
+  | ⚡ Frenzied Strikes | +5% attack speed |
+  | 📖 Forbidden Lore | +8% XP gain |
+  | 💀 Undying Will | +1 revive per run (max 3) — revive at 30% HP |
   | 💰 Soul Tithe | +8% Shadows earned (self-investment loop) |
 
-- **Controls:** `↑`/`↓` (or `W`/`S`) to select, `Enter`/`Space` to buy, `Esc` to go back — or simply **tap a row** (mobile/mouse).
+- **Controls:** `↑`/`↓` (or `W`/`S`) to select, `Enter`/`Space` to buy, `Esc` to go back — or simply **tap a row** (mobile/mouse). The list **scrolls** when there are more upgrades than fit on screen.
 - Progress is saved to `localStorage` (`graveReaper.shadowVault.v1`), so it persists across sessions. In a sandboxed iframe where storage is blocked, it gracefully falls back to in-memory for the session.
 
 Implementation: definitions in [src/data/vault.js](src/data/vault.js), persistence/logic in [src/systems/vault.js](src/systems/vault.js), screen in [src/ui/vault.js](src/ui/vault.js).

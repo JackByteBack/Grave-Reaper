@@ -68,6 +68,50 @@ export const VAULT_UPGRADES = [
     },
   },
   {
+    id: 'grave_regen',
+    name: 'Grave Regen',
+    icon: '🩸',
+    maxLevel: 5,
+    baseCost: 95,
+    desc: (lv) => `+${(lv * 0.4).toFixed(1)} HP / sec regeneration`,
+    apply(player, level) {
+      player.regenPerSec += level * 0.4;
+    },
+  },
+  {
+    id: 'frenzied_strikes',
+    name: 'Frenzied Strikes',
+    icon: '⚡',
+    maxLevel: 5,
+    baseCost: 130,
+    desc: (lv) => `+${lv * 5}% attack speed`,
+    apply(player, level) {
+      player.attackSpeedMultiplier *= 1 + level * 0.05;
+    },
+  },
+  {
+    id: 'forbidden_lore',
+    name: 'Forbidden Lore',
+    icon: '📖',
+    maxLevel: 5,
+    baseCost: 85,
+    desc: (lv) => `+${lv * 8}% XP gain`,
+    apply(player, level) {
+      player.xpMultiplier *= 1 + level * 0.08;
+    },
+  },
+  {
+    id: 'undying_will',
+    name: 'Undying Will',
+    icon: '💀',
+    maxLevel: 3,
+    baseCost: 250,
+    desc: (lv) => `Cheat death ${lv} time${lv === 1 ? '' : 's'} per run (revive at 30% HP)`,
+    apply(player, level) {
+      player.revives += level;
+    },
+  },
+  {
     id: 'soul_tithe',
     name: 'Soul Tithe',
     icon: '💰',

@@ -14,12 +14,17 @@ const JP = "'Yu Gothic', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif";
 
 const LIST_X = 40;
 const LIST_W = 400;
-const LIST_Y = 58;
+const LIST_Y = 56;
 const ROW_H = 29;
+// The list scrolls: only VISIBLE rows are drawn at once, the cursor keeps the
+// selected row in view. This lets the vault hold any number of upgrades.
+const VISIBLE = 6;
+const VIEW_H = VISIBLE * ROW_H;   // 174px viewport, ends ~230
 
 export class VaultScreen {
   constructor() {
     this.sel = 0;
+    this.scroll = 0;       // index of the top visible row
     this.flash = 0;        // +1 = bought, -1 = denied
     this.flashTimer = 0;
     this.backBtnRect = null;
@@ -29,8 +34,18 @@ export class VaultScreen {
   // Called each time the screen is opened, to reset the cursor/feedback.
   reset() {
     this.sel = 0;
+    this.scroll = 0;
     this.flash = 0;
     this.flashTimer = 0;
+  }
+
+  // Keep the selected row inside the visible window.
+  _clampScroll() {
+    const n = VAULT_UPGRADES.length;
+    const maxScroll = Math.max(0, n - VISIBLE);
+    if (this.sel < this.scroll) this.scroll = this.sel;
+    else if (this.sel >= this.scroll + VISIBLE) this.scroll = this.sel - VISIBLE + 1;
+    this.scroll = Math.max(0, Math.min(maxScroll, this.scroll));
   }
 
   update(dt) {
@@ -39,6 +54,7 @@ export class VaultScreen {
     const n = VAULT_UPGRADES.length;
     if (isJustPressed('ArrowUp')   || isJustPressed('KeyW')) this.sel = (this.sel - 1 + n) % n;
     if (isJustPressed('ArrowDown') || isJustPressed('KeyS')) this.sel = (this.sel + 1) % n;
+    this._clampScroll();
 
     if (isJustPressed('Escape') || isJustPressed('Backspace')) return 'back';
     if (isConfirm()) this._buy(this.sel);
@@ -59,11 +75,11 @@ export class VaultScreen {
   handleTap(lx, ly) {
     const b = this.backBtnRect;
     if (b && lx >= b.x && lx <= b.x + b.w && ly >= b.y && ly <= b.y + b.h) return 'back';
-    for (let i = 0; i < this.rowRects.length; i++) {
-      const r = this.rowRects[i];
+    for (const r of this.rowRects) {
       if (lx >= r.x && lx <= r.x + r.w && ly >= r.y && ly <= r.y + r.h) {
-        this.sel = i;
-        this._buy(i);
+        this.sel = r.idx;
+        this._clampScroll();
+        this._buy(r.idx);
         return null;
       }
     }
@@ -93,11 +109,13 @@ export class VaultScreen {
     ctx.font = `bold 13px ${JP}`;
     ctx.fillText(`👻 Shadows: ${getShadows()}`, W - 16, 48);
 
-    // Upgrade rows
+    // Upgrade rows (only the visible window; the list scrolls).
     this.rowRects = [];
-    for (let i = 0; i < VAULT_UPGRADES.length; i++) {
+    const n = VAULT_UPGRADES.length;
+    const end = Math.min(n, this.scroll + VISIBLE);
+    for (let i = this.scroll; i < end; i++) {
       const def = VAULT_UPGRADES[i];
-      const y = LIST_Y + i * ROW_H;
+      const y = LIST_Y + (i - this.scroll) * ROW_H;
       const h = ROW_H - 4;
       const sel = i === this.sel;
       const lv = getLevel(def.id);
@@ -105,7 +123,7 @@ export class VaultScreen {
       const maxed = cost === null;
       const afford = canAfford(def);
 
-      this.rowRects.push({ x: LIST_X, y, w: LIST_W, h });
+      this.rowRects.push({ x: LIST_X, y, w: LIST_W, h, idx: i });
 
       // Row frame
       ctx.fillStyle = sel ? 'rgba(60,30,90,0.92)' : 'rgba(16,12,28,0.82)';
@@ -145,6 +163,19 @@ export class VaultScreen {
         ctx.fillStyle = afford ? '#ffd24a' : '#aa5555';
         ctx.fillText(`${cost} 👻`, LIST_X + LIST_W - 10, y + 17);
       }
+    }
+
+    // Scrollbar (only when the list overflows the viewport).
+    if (n > VISIBLE) {
+      const trackX = LIST_X + LIST_W + 4;
+      const trackW = 4;
+      ctx.fillStyle = 'rgba(40,30,60,0.7)';
+      ctx.fillRect(trackX, LIST_Y, trackW, VIEW_H);
+      const thumbH = Math.max(16, (VISIBLE / n) * VIEW_H);
+      const maxScroll = n - VISIBLE;
+      const thumbY = LIST_Y + (maxScroll === 0 ? 0 : (this.scroll / maxScroll) * (VIEW_H - thumbH));
+      ctx.fillStyle = '#9b59d0';
+      ctx.fillRect(trackX, thumbY, trackW, thumbH);
     }
 
     // Purchase / denial feedback

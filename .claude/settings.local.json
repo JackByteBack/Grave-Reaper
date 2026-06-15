@@ -11,7 +11,9 @@
       "Bash(cp src/ui/title.js /tmp/title_check.mjs)",
       "Bash(node --check /tmp/title_check.mjs)",
       "Bash(git commit css/style.css -m 'Translate CSS comments to English *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(node --check src/data/vault.js)",
+      "Bash(node --check src/ui/vault.js)"
     ]
   }
 }
