@@ -249,7 +249,7 @@ We welcome contributions from the community! Here's how you can help:
 ### Getting Started
 
 1. **Fork** the repository
-2. **Clone** your fork: `git clone https://github.com/yourusername/Grave-Reaper.git`
+2. **Clone** your fork: `git clone https://github.com/JackByteBack/Grave-Reaper.git`
 3. **Create** a feature branch: `git checkout -b feature/amazing-feature`
 4. **Make** your changes
 5. **Commit**: `git commit -m 'Add amazing feature'`
